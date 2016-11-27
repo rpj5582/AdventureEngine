@@ -51,21 +51,21 @@
 		"components": [{
 			"name": "RenderComponent",
 			"assets": [{
-                "name": "quad",
+				"name": "quad",
 				"type": "model",
 				"filepath": ""
 			}, {
-                "name": "test1",
+				"name": "test1",
 				"type": "texture",
 				"filepath": "Textures/test1.png"
 			}],
 			"args": []
 		}]
 	}, {
-        "name": "teapot",
+		"name": "cube",
 		"position": {
 			"x": 2,
-			"y": -2,
+			"y": 2,
 			"z": 0
 		},
 		"rotation": {
@@ -81,9 +81,13 @@
 		"components": [{
 			"name": "RenderComponent",
 			"assets": [{
-                "name": "teapot",
+				"name": "cube",
 				"type": "model",
-				"filepath": "Models/teapot.obj"
+				"filepath": "Models/cube.obj"
+			}, {
+				"name": "test",
+				"type": "texture",
+				"filepath": "Textures/test.png"
 			}],
 			"args": []
 		}]
