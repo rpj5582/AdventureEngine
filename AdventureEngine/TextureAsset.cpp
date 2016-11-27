@@ -1,5 +1,9 @@
 #include "TextureAsset.h"
 
+TextureAsset::TextureAsset() : Asset()
+{
+}
+
 TextureAsset::TextureAsset(GLuint assetID) : Asset(assetID)
 {
 }

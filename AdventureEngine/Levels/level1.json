@@ -1,39 +1,91 @@
 {
-    "name": "Level 1",
-    "objects": [
-        {
-            "name": "Player",
-            "position": { "x": 0, "y": 0, "z": 0 },
-            "rotation": { "x": 0, "y": 0, "z": 0 },
-            "scale": { "x": 1, "y": 1, "z": 1 },
-            "model": { "name": "quad", "filepath": "" },
-            "texture": { "name": "test1", "filepath": "Textures/test1.png" },
-            "components": [
-                {
-                    "name": "RenderComponent",
-                    "assets": [
-                        { "type": "model", "name": "quad", "filepath": "" },
-                        { "type": "texture", "name": "test", "filepath": "Textures/test.png" }
-                    ],
-                    "args":[
-                        "quad", "test"
-                    ]
-                }
-                
-            ]
-        },
-        {
-            "position": { "x": 1, "y": 1, "z": 0 },
-            "rotation": { "x": 0, "y": 0, "z": 45 },
-            "scale": { "x": 1.5, "y": 1.5, "z": 1.5 },
-            "components":
-            {
-                "RenderComponent":
-                {
-                    "model": { "name": "quad", "filepath": "" },
-                    "texture": { "name": "test1", "filepath": "Textures/test1.png" }
-                }
-            }            
-        }
-    ]
+	"name": "Level 1",
+	"objects": [{
+		"name": "Player",
+		"position": {
+			"x": 0,
+			"y": 0,
+			"z": 0
+		},
+		"rotation": {
+			"x": 0,
+			"y": 0,
+			"z": 0
+		},
+		"scale": {
+			"x": 1,
+			"y": 1,
+			"z": 1
+		},
+		"components": [{
+				"name": "RenderComponent",
+				"assets": [{
+					"type": "model",
+					"name": "quad",
+					"filepath": ""
+				}, {
+					"type": "texture",
+					"name": "test",
+					"filepath": "Textures/test.png"
+				}],
+				"args": []
+			}
+
+		]
+	}, {
+		"position": {
+			"x": 1,
+			"y": 1,
+			"z": 0
+		},
+		"rotation": {
+			"x": 0,
+			"y": 0,
+			"z": 45
+		},
+		"scale": {
+			"x": 1.5,
+			"y": 1.5,
+			"z": 1.5
+		},
+		"components": [{
+			"name": "RenderComponent",
+			"assets": [{
+                "name": "quad",
+				"type": "model",
+				"filepath": ""
+			}, {
+                "name": "test1",
+				"type": "texture",
+				"filepath": "Textures/test1.png"
+			}],
+			"args": []
+		}]
+	}, {
+        "name": "teapot",
+		"position": {
+			"x": 2,
+			"y": -2,
+			"z": 0
+		},
+		"rotation": {
+			"x": 0,
+			"y": 0,
+			"z": 0
+		},
+		"scale": {
+			"x": 0.1,
+			"y": 0.1,
+			"z": 0.1
+		},
+		"components": [{
+			"name": "RenderComponent",
+			"assets": [{
+                "name": "teapot",
+				"type": "model",
+				"filepath": "Models/teapot.obj"
+			}],
+			"args": []
+		}]
+	}]
 }

@@ -2,10 +2,13 @@
 
 TestComponent::TestComponent(Object* object) : Component(object)
 {
-	Object::registerComponent<TestComponent>("TestComponent");
 }
 
 TestComponent::~TestComponent()
+{
+}
+
+void TestComponent::initFromJSON(AssetManager* assetManager, json assets, json args)
 {
 }
 

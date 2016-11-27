@@ -24,9 +24,9 @@ namespace AdventureEngine
 
 	private:
 		void generatePrimitives();
-		void bufferModel(std::string name, const GLfloat* modelData, unsigned int vertexCount);
+		ModelAsset* bufferModel(std::string name, const GLfloat* modelData, unsigned int vertexCount);
 
-		std::unordered_map<std::string, TextureAsset> m_textures;
-		std::unordered_map<std::string, ModelAsset> m_models;
+		std::unordered_map<std::string, TextureAsset*> m_textures;
+		std::unordered_map<std::string, ModelAsset*> m_models;
 	};
 }

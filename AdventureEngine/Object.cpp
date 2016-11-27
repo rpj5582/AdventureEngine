@@ -4,6 +4,8 @@
 
 namespace AdventureEngine
 {
+	std::unordered_map<std::string, Component*(Object::*)()> Object::m_componentTypes;
+
 	Object::Object(std::string name) : Object(name, { 0, 0, 0 }) { }
 
 	Object::Object(std::string name, glm::vec3 position) : Object(name, { 0, 0, 0 }, { 0, 0, 0 }, { 1, 1, 1 }) { }
@@ -30,5 +32,12 @@ namespace AdventureEngine
 		{
 			m_components[i]->update();
 		}
+	}
+
+	Component* Object::addRegisteredComponent(std::string componentName)
+	{
+		assert(m_componentTypes.find(componentName) != m_componentTypes.end());
+		
+		return (this->*(m_componentTypes.at(componentName)))();;
 	}
 }

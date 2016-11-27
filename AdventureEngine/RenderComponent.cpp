@@ -2,14 +2,30 @@
 
 namespace AdventureEngine
 {
-	RenderComponent::RenderComponent(Object* object, const ModelAsset* model, const TextureAsset* texture) : Component(object)
+	RenderComponent::RenderComponent(Object* object) : Component(object)
 	{
-		this->model = model;
-		this->texture = texture;
 	}
 
 	RenderComponent::~RenderComponent()
 	{
+	}
+
+	void RenderComponent::initFromJSON(AssetManager* assetManager, json assets, json args)
+	{
+		for (unsigned int i = 0; i < assets.size(); i++)
+		{
+			json asset = assets[i];
+
+			std::string assetType = asset["type"];
+			if (assetType == "model")
+			{
+				model = assetManager->loadModel(asset["name"], asset["filepath"]);
+			}
+			else if (assetType == "texture")
+			{
+				texture = assetManager->loadTexture(asset["name"], asset["filepath"]);
+			}
+		}
 	}
 
 	void RenderComponent::update()

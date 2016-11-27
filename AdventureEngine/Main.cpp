@@ -1,6 +1,6 @@
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glfw3.lib")
-#pragma comment(lib, "glew32d.lib")
+#pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "FreeImage.lib")
 
 #include "Engine.h"

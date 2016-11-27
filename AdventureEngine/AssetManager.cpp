@@ -3,7 +3,8 @@
 #include <GL\glew.h>
 #include <FreeImage.h>
 
-#include <iostream>
+#include <fstream>
+#include <sstream>
 
 namespace AdventureEngine
 {
@@ -14,16 +15,115 @@ namespace AdventureEngine
 
 	AssetManager::~AssetManager()
 	{
+		for (auto it = m_textures.begin(); it != m_textures.end(); it++)
+		{
+			delete it->second;
+		}
+
+		for (auto it = m_models.begin(); it != m_models.end(); it++)
+		{
+			delete it->second;
+		}
 	}
 
 	ModelAsset* AssetManager::loadModel(std::string name, std::string filepath)
 	{
 		if (m_models.find(name) == m_models.end())
 		{
-			// UNIMPLEMENTED
+			// WIP
+			std::ifstream ifs(filepath);
+			if (ifs.is_open())
+			{
+				std::vector<glm::vec3> positions;
+				std::vector<glm::vec2> uvs;
+				std::vector<glm::vec3> normals;
+				std::vector<GLfloat> modelData;
+				int vertexCount = 0;
+
+				std::string line;
+				while (std::getline(ifs, line))
+				{
+					std::istringstream iss(line);
+
+					std::string id;
+					iss >> id;
+
+					if (id == "v")
+					{
+						glm::vec3 position;
+						iss >> position.x;
+						iss >> position.y;
+						iss >> position.z;
+						positions.push_back(position);
+					}
+					else if (id == "vt")
+					{
+						glm::vec3 uv;
+						iss >> uv.x;
+						iss >> uv.y;
+						uvs.push_back(uv);
+					}
+					else if (id == "vn")
+					{
+						glm::vec3 normal;
+						iss >> normal.x;
+						iss >> normal.y;
+						iss >> normal.z;
+						normals.push_back(normal);
+					}
+					else if (id == "f")
+					{
+						// Processes 3 vertices per line
+						for (int i = 0; i < 2; i++)
+						{
+							char backSlash;
+							int posIndex;
+							int uvIndex;
+							int normIndex;
+
+							// Reads in all the data from one vertex
+							iss >> posIndex;
+							iss >> backSlash;
+							iss >> uvIndex;
+							iss >> backSlash;
+							iss >> normIndex;
+
+							// Subtracts one from the indices so they index properly into an array
+							posIndex--;
+							uvIndex--;
+							normIndex--;
+
+							// Adds the position data to the buffer
+							modelData.push_back(positions[posIndex].x);
+							modelData.push_back(positions[posIndex].y);
+							modelData.push_back(positions[posIndex].z);
+
+							// Adds the uv data to the buffer
+							modelData.push_back(uvs[uvIndex].x);
+							modelData.push_back(uvs[uvIndex].y);
+
+							// Adds the normal data to the buffer
+							modelData.push_back(normals[normIndex].x);
+							modelData.push_back(normals[normIndex].y);
+							modelData.push_back(normals[normIndex].z);
+
+							vertexCount++;
+						}
+					}
+				}
+				
+				
+				ifs.close();
+				GLfloat* model = &modelData[0];
+
+
+				return bufferModel(name, model, vertexCount);
+			}
+
+			return nullptr;
 		}
 
-		return &m_models.at(name);
+		return m_models.at(name);
 	}
 
 	TextureAsset* AssetManager::loadTexture(std::string name, std::string filepath)
@@ -59,17 +159,17 @@ namespace AdventureEngine
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			// Save the texture id in the map
-			m_textures[name] = { textureID };
+			m_textures[name] = new TextureAsset(textureID);
 		}
 
-		return &m_textures.at(name);
+		return m_textures.at(name);
 	}
 
 	ModelAsset* AssetManager::getModel(std::string name)
 	{
 		if (m_models.find(name) != m_models.end())
 		{
-			return &m_models.at(name);
+			return m_models.at(name);
 		}
 
 		return nullptr;
@@ -79,7 +179,7 @@ namespace AdventureEngine
 	{
 		if (m_textures.find(name) != m_textures.end())
 		{
-			return &m_textures.at(name);
+			return m_textures.at(name);
 		}
 
 		return nullptr;
@@ -102,7 +202,7 @@ namespace AdventureEngine
 		bufferModel("quad", m_quad, 6);
 	}
 
-	void AssetManager::bufferModel(std::string name, const GLfloat* modelData, unsigned int vertexCount)
+	ModelAsset* AssetManager::bufferModel(std::string name, const GLfloat* modelData, unsigned int vertexCount)
 	{
 		GLuint vbo; // The opengl vertex buffer object index
 		GLuint vao; // The opengl vertex array object index
@@ -113,7 +213,7 @@ namespace AdventureEngine
 		glBindBuffer(GL_ARRAY_BUFFER, vbo); // Binds the array buffer to the vertex buffer object
 		glBindVertexArray(vao); // Binds the vertex array to the quad
 
-								// Fills the arrray buffer with the quad's data
+		// Fills the arrray buffer with the quad's data
 		glBufferData(GL_ARRAY_BUFFER, (sizeof(glm::vec3) + sizeof(glm::vec2) + sizeof(glm::vec3)) * vertexCount, modelData, GL_STATIC_DRAW);
 
 		// Sets the first attribute to the quad's vertex location
@@ -128,6 +228,7 @@ namespace AdventureEngine
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3) + sizeof(glm::vec2) + sizeof(glm::vec3), (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
 
-		m_models[name] = { vao, vertexCount };
+		m_models[name] = new ModelAsset(vao, vertexCount);
+		return m_models[name];
 	}
 }

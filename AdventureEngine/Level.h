@@ -3,6 +3,8 @@
 #include "AssetManager.h"
 
 #include "Object.h"
+
+#include "ComponentRegistry.h"
 #include "RenderComponent.h"
 #include "CameraComponent.h"
 #include "TestComponent.h"

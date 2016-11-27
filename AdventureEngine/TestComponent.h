@@ -11,5 +11,6 @@ public:
 	TestComponent(Object* object);
 	~TestComponent();
 
-	virtual void update() override;
+	void initFromJSON(AssetManager* assetManager, json assets, json args) override;
+	void update() override;
 };

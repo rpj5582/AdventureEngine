@@ -10,9 +10,10 @@ namespace AdventureEngine
 	class RenderComponent : public Component
 	{
 	public:
-		RenderComponent(Object* object, const ModelAsset* model, const TextureAsset* texture);
+		RenderComponent(Object* object);
 		~RenderComponent();
 
+		void initFromJSON(AssetManager* assetManager, json assets, json args) override;
 		void update() override;
 
 		const ModelAsset* model;

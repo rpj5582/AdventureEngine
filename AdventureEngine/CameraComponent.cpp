@@ -4,42 +4,68 @@
 
 namespace AdventureEngine
 {
-	CameraComponent::CameraComponent(Object* object, float* aspectRatio) : CameraComponent(object, aspectRatio, 5)
+	CameraComponent::CameraComponent(Object* object) : CameraComponent(object, 60, 5, 100, true)
 	{
 	}
 
-	CameraComponent::CameraComponent(Object* object, float* aspectRatio, float size) : Component(object)
+	CameraComponent::CameraComponent(Object* object, float perspectiveFOV) : CameraComponent(object, perspectiveFOV, 5, 100, true)
 	{
-		m_aspectRatio = aspectRatio;
-		m_size = size;
+	}
+
+	CameraComponent::CameraComponent(Object* object, float orthoSize, float maxZ) : CameraComponent(object, 60.0f, orthoSize, maxZ, false)
+	{
+	}
+
+	CameraComponent::CameraComponent(Object* object, float perspectiveFOV, float orthoSize, float maxZ, bool usePerspective) : Component(object)
+	{
+		m_fov = perspectiveFOV;
+		m_orthoSize = orthoSize;
+		m_maxZ = maxZ;
+		m_usePerspective = usePerspective;
 	}
 
 	CameraComponent::~CameraComponent()
 	{
-		m_aspectRatio = nullptr;
+		
+	}
+
+	void CameraComponent::initFromJSON(AssetManager* assetManager, json assets, json args)
+	{
+		m_fov = args[0];
+		m_orthoSize = args[1];
+		m_maxZ = args[2];
+		m_usePerspective = args[3];
 	}
 
 	void CameraComponent::update()
 	{
 	}
 
-	glm::mat4 CameraComponent::calculateCameraMatrix() const
+	glm::mat4 CameraComponent::calculateCameraMatrix(float aspectRatio) const
 	{
 		// view matrix
 		glm::mat4 viewMatrix = glm::lookAt(object->position, object->position + glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
 
 		// projection matrix
-		float xSize = m_size;
-		float ySize = m_size;
-		if (*m_aspectRatio > 1)
+		glm::mat4 projectionMatrix;
+		if (m_usePerspective)
 		{
-			xSize *= *m_aspectRatio;
+			projectionMatrix = glm::perspective(m_fov, aspectRatio, 0.1f, 100.0f);
 		}
 		else
 		{
-			ySize = xSize / *m_aspectRatio;
+			float xSize = m_orthoSize;
+			float ySize = m_orthoSize;
+			if (aspectRatio > 1)
+			{
+				xSize *= aspectRatio;
+			}
+			else
+			{
+				ySize = xSize / aspectRatio;
+			}
+			projectionMatrix = glm::ortho(-xSize, xSize, -ySize, ySize, 0.0f, m_maxZ);
 		}
-		glm::mat4 projectionMatrix = glm::ortho(-xSize, xSize, -ySize, ySize, -1.0f, 1.0f);
 
 		return projectionMatrix * viewMatrix;
 	}

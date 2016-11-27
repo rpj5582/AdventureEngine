@@ -3,6 +3,7 @@
 class ModelAsset : public Asset
 {
 public:
+	ModelAsset();
 	ModelAsset(GLuint assetID, unsigned int vertexCount);
 	~ModelAsset();
 

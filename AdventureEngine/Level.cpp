@@ -47,6 +47,12 @@ namespace AdventureEngine
 			// Gets the list of objects in the level
 			json objects = j["objects"];
 
+			// Map of all assets loaded by this level
+			std::unordered_map<std::string, Asset*> assetMap;
+
+			// Register all components
+			ComponentRegistry registry;
+
 			for (unsigned int i = 0; i < objects.size(); i++)
 			{
 				json object = objects[i];
@@ -88,78 +94,13 @@ namespace AdventureEngine
 					json components = object["components"];
 					for (unsigned int i = 0; i < components.size(); i++)
 					{
-						std::string componentName = components[i]["name"];
-						json componentAssets = components[i]["assets"];
-						json componentArgs = components[i]["args"];
+						json component = components[i];
+						std::string componentName = component["name"];
+						json componentAssets = component["assets"];
+						json componentArgs = component["args"];
 
-						// Loads in all of the assets that the component requires
-						std::unordered_map<std::string, Asset*> assetMap;
-						for (unsigned int j = 0; j < componentAssets.size(); j++)
-						{
-							json asset = componentAssets[j];
-							std::string type = asset["type"];
-
-							if (type == "model")
-							{
-								assetMap[asset["name"]] = m_assetManager->loadModel(asset["name"], asset["filepath"]);
-							}
-							else if (type == "texture")
-							{
-								assetMap[asset["name"]] = m_assetManager->loadTexture(asset["name"], asset["filepath"]);
-							}
-						}
-
-						// Gets the arguments for the component
-						std::vector<Asset*> assetArgs;
-						std::vector<json> nonAssetArgs;
-						for (unsigned int j = 0; j < componentArgs.size(); j++)
-						{
-							// Argument is an already loaded asset
-							if (assetMap.count(componentArgs[j]) == 1)
-							{
-								assetArgs.push_back(assetMap.at(componentArgs[j]));
-							}
-							else // Argument is not an asset
-							{
-								nonAssetArgs.push_back(componentArgs[j]);
-							}
-
-							//obj->addComponentByName(componentName);
-						}
-
-						
-					}
-				}
-
-
-
-
-
-
-
-				// Load in a model if it exists
-				if (object.count("model") == 1)
-				{
-					Model model = m_assetManager->loadModel(object["model"]["name"], object["model"]["filepath"]);
-					if (model.id != 0)
-					{
-						// Load in a texture if it exists
-						if (object.count("texture") == 1)
-						{
-							Texture texture = m_assetManager->loadTexture(object["texture"]["name"], object["texture"]["filepath"]);
-							if (texture.id != 0)
-							{
-								obj->addComponent<RenderComponent>(model, texture);
-							}
-							else
-							{
-								std::cout << "Failed to load texture " << (object["texture"].count("name") == 1 ? object["texture"]["name"] : object["texture"]) << " at " << object["texture"]["filepath"] << std::endl;
-							}
-						}
-					}
-					else
-					{
-						std::cout << "Failed to load model " << (object["model"].count("name") == 1 ? object["model"]["name"] : object["model"]) << " at " << object["model"]["filepath"] << std::endl;
+						Component* c = obj->addRegisteredComponent(componentName);
+						c->initFromJSON(m_assetManager, componentAssets, componentArgs);
 					}
 				}
 
@@ -167,8 +108,8 @@ namespace AdventureEngine
 			}
 
 			// Creates a main camera
-			m_mainCamera = new Object("mainCamera");
-			m_mainCamera->addComponent<CameraComponent>(m_aspectRatio);
+			m_mainCamera = new Object("mainCamera", { 0.0f, 0.0f, -100.0f });
+			m_mainCamera->addComponent<CameraComponent>(5.0f, 100.0f);
 			m_mainCamera->addComponent<TestComponent>();
 
 			m_objects.push_back(m_mainCamera);
@@ -200,18 +141,26 @@ namespace AdventureEngine
 			glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
 			// model-view-projection matrix
-			glm::mat4 mvp = m_mainCamera->getComponent<CameraComponent>()->calculateCameraMatrix() * modelMatrix;
+			glm::mat4 mvp = m_mainCamera->getComponent<CameraComponent>()->calculateCameraMatrix(*m_aspectRatio) * modelMatrix;
 
 			// Sends the mvp matrix to the graphics card
 			glUniformMatrix4fv(3, 1, GL_FALSE, &mvp[0][0]);
 
 			// Draws the object
 			RenderComponent* renderComponent = m_objects[i]->getComponent<RenderComponent>();
-			if (renderComponent)
+			if (renderComponent && renderComponent->model)
 			{
-				glBindTexture(GL_TEXTURE_2D, renderComponent->texture.id);
-				glBindVertexArray(renderComponent->model.id);
-				glDrawArrays(GL_TRIANGLES, 0, renderComponent->model.vertexCount);
+				if (renderComponent->texture)
+				{
+					glBindTexture(GL_TEXTURE_2D, renderComponent->texture->getAssetID());
+				}
+				else
+				{
+					glBindTexture(GL_TEXTURE_2D, 0);
+				}
+
+				glBindVertexArray(renderComponent->model->getAssetID());
+				glDrawArrays(GL_TRIANGLES, 0, renderComponent->model->getVertexCount());
 			}
 		}
 	}
