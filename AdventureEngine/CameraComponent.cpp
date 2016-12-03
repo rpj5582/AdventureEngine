@@ -53,7 +53,7 @@ namespace AdventureEngine
 		glm::mat4 projectionMatrix;
 		if (m_usePerspective)
 		{
-			projectionMatrix = glm::perspective(glm::radians(m_fov), aspectRatio, 0.1f, 100.0f);
+			projectionMatrix = glm::perspective(m_fov, aspectRatio, 0.1f, 100.0f);
 		}
 		else
 		{

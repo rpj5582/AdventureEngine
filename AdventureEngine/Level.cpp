@@ -44,6 +44,16 @@ namespace AdventureEngine
 			// Parses the string to a json object
 			json j = json::parse(jsonCString);
 
+			// Name of the level
+			std::string levelName = j["name"];
+
+			// Name of the main camera object
+			std::string cameraName = "";
+			if (j.count("main_camera") == 1)
+			{
+				cameraName = j["main_camera"];
+			}
+
 			// Gets the list of objects in the level
 			json objects = j["objects"];
 
@@ -104,15 +114,18 @@ namespace AdventureEngine
 					}
 				}
 
+				if (cameraName != "" && name == cameraName)
+				{
+					m_mainCamera = obj;
+				}
+
 				m_objects.push_back(obj);
 			}
 
-			// Creates a main camera
-			m_mainCamera = new Object("mainCamera", { 0.0f, 0.0f, 10.0f });
-			m_mainCamera->addComponent<CameraComponent>(60.0f);
-			m_mainCamera->addComponent<TestComponent>();
-
-			m_objects.push_back(m_mainCamera);
+			if (m_mainCamera == nullptr)
+			{
+				std::cout << "Main camera not assigned!" << std::endl;
+			}
 
 			ifs.close();
 			return true;
@@ -140,11 +153,14 @@ namespace AdventureEngine
 			// Model matrix
 			glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
-			// model-view-projection matrix
-			glm::mat4 mvp = m_mainCamera->getComponent<CameraComponent>()->calculateCameraMatrix(*m_aspectRatio) * modelMatrix;
+			if (m_mainCamera)
+			{
+				// model-view-projection matrix
+				glm::mat4 mvp = m_mainCamera->getComponent<CameraComponent>()->calculateCameraMatrix(*m_aspectRatio) * modelMatrix;
 
-			// Sends the mvp matrix to the graphics card
-			glUniformMatrix4fv(3, 1, GL_FALSE, &mvp[0][0]);
+				// Sends the mvp matrix to the graphics card
+				glUniformMatrix4fv(3, 1, GL_FALSE, &mvp[0][0]);
+			}			
 
 			// Draws the object
 			RenderComponent* renderComponent = m_objects[i]->getComponent<RenderComponent>();

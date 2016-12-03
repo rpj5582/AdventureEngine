@@ -1,5 +1,7 @@
 {
 	"name": "Level 1",
+    "main_camera": "mainCamera",
+    
 	"objects": [{
 		"name": "Player",
 		"position": {
@@ -62,14 +64,14 @@
 			"args": []
 		}]
 	}, {
-		"name": "cube",
+		"name": "teapot",
 		"position": {
 			"x": 5,
-			"y": 5,
+			"y": 1,
 			"z": 0
 		},
 		"rotation": {
-			"x": 0,
+			"x": -1.5707963267948966192313216916398,
 			"y": 0,
 			"z": 0
 		},
@@ -87,5 +89,28 @@
 			}],
 			"args": []
 		}]
-	}]
+	}, {
+        "name": "mainCamera",
+        "position": {
+			"x": 0,
+			"y": 5,
+			"z": 5
+		},
+		"rotation": {
+			"x": -0.78539816339744830961566084581988,
+			"y": 0,
+			"z": 0
+		},
+		"scale": {
+			"x": 1,
+			"y": 1,
+			"z": 1
+		},
+        "components": [{
+            "name": "CameraComponent",
+            "args": [1.0471975511965977461542144610932, 5, 100, true]
+        }, {
+            "name": "TestComponent"
+        }]
+    }]
 }
