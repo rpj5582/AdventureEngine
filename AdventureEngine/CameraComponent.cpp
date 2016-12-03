@@ -43,14 +43,17 @@ namespace AdventureEngine
 
 	glm::mat4 CameraComponent::calculateCameraMatrix(float aspectRatio) const
 	{
+		// gets the camera's rotation matrix to use for calculating the view matrix
+		glm::mat3 rotationMatrix = object->getRotationMatrix();
+
 		// view matrix
-		glm::mat4 viewMatrix = glm::lookAt(object->position, object->position + glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+		glm::mat4 viewMatrix = glm::lookAt(object->position, object->position + rotationMatrix * glm::vec3(0, 0, -1), rotationMatrix * glm::vec3(0, 1, 0));
 
 		// projection matrix
 		glm::mat4 projectionMatrix;
 		if (m_usePerspective)
 		{
-			projectionMatrix = glm::perspective(m_fov, aspectRatio, 0.1f, 100.0f);
+			projectionMatrix = glm::perspective(glm::radians(m_fov), aspectRatio, 0.1f, 100.0f);
 		}
 		else
 		{

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <glm\glm.hpp>
+#include <glm\gtx\euler_angles.hpp>
 
 namespace AdventureEngine
 {
@@ -32,6 +33,11 @@ namespace AdventureEngine
 
 		template <typename T>
 		static bool registerComponent(std::string componentName);
+
+		glm::mat3 getRotationMatrix() const;
+		glm::vec3 getRight() const;
+		glm::vec3 getUp() const;
+		glm::vec3 getForward() const;
 
 		glm::vec3 position;
 		glm::vec3 rotation;

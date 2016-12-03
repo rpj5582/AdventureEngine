@@ -108,8 +108,8 @@ namespace AdventureEngine
 			}
 
 			// Creates a main camera
-			m_mainCamera = new Object("mainCamera", { 0.0f, 0.0f, -5.0f });
-			m_mainCamera->addComponent<CameraComponent>(5.0f, 100.0f);
+			m_mainCamera = new Object("mainCamera", { 0.0f, 0.0f, 10.0f });
+			m_mainCamera->addComponent<CameraComponent>(60.0f);
 			m_mainCamera->addComponent<TestComponent>();
 
 			m_objects.push_back(m_mainCamera);

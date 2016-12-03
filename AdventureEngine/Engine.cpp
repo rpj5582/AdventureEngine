@@ -72,6 +72,7 @@ namespace AdventureEngine
 		glfwSetWindowSizeCallback(m_window, glfwWindowResizeCallback);
 		glfwSetKeyCallback(m_window, Input::keyCallback);
 		glfwSetMouseButtonCallback(m_window, Input::mouseClickCallback);
+		glfwSetCursorPosCallback(m_window, Input::mouseMoveCallback);
 
 		// Enables backface culling
 		glEnable(GL_CULL_FACE);

@@ -30,7 +30,6 @@ namespace AdventureEngine
 	{
 		if (m_models.find(name) == m_models.end())
 		{
-			// WIP
 			std::ifstream ifs(filepath);
 			if (ifs.is_open())
 			{
@@ -74,7 +73,7 @@ namespace AdventureEngine
 					else if (id == "f")
 					{
 						// Processes 3 vertices per line
-						for (int i = 0; i < 2; i++)
+						for (int i = 0; i < 3; i++)
 						{
 							char backSlash;
 							int posIndex;
@@ -115,7 +114,6 @@ namespace AdventureEngine
 				
 				ifs.close();
 				GLfloat* model = &modelData[0];
-
 
 				return bufferModel(name, model, vertexCount);
 			}
