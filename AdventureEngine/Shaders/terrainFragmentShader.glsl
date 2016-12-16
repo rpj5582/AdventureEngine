@@ -28,7 +28,14 @@ layout (location = 6) uniform float specularDamping;
 layout (location = 7) uniform vec3 skyColor;
 
 // Texture uniforms
-layout (location = 8) uniform sampler2D theTexture;
+layout (location = 8) uniform sampler2D blendMap;
+layout (location = 9) uniform sampler2D texture0;
+layout (location = 10) uniform sampler2D texture1;
+layout (location = 11) uniform sampler2D texture2;
+layout (location = 12) uniform sampler2D texture3;
+
+// UV scaling
+layout (location = 13) uniform vec2 uvScale;
 
 // Lights
 layout (location = 14) uniform Light lights[16];
@@ -64,15 +71,27 @@ vec3 calculateLighting(Light light, vec4 color)
 
 void main()
 {
-	// Gets the fragment color
-	vec4 fragColor = texture(theTexture, uv);
+	// Tiles the UV
+	vec2 tiledUV = uv * uvScale * uvScale;
+
+	// Gets the color from the blend map
+	vec4 blendMapColor = texture(blendMap, uv);
+
+	// Gets the weighted color from each texture
+	vec4 texture0Color = texture(texture0, tiledUV) * (1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b));
+	vec4 texture1Color = texture(texture1, tiledUV) * blendMapColor.r;
+	vec4 texture2Color = texture(texture2, tiledUV) * blendMapColor.g;
+	vec4 texture3Color = texture(texture3, tiledUV) * blendMapColor.b;
+
+	// Calculates the total color for this pixel
+	vec4 totalColor = texture0Color + texture1Color + texture2Color + texture3Color;
 
 	vec3 lightColor = vec3(0);
 	for(int i = 0; i < lights.length(); i++)
 	{
-		lightColor += calculateLighting(lights[i], fragColor);
-	}
+		lightColor += calculateLighting(lights[i], totalColor);
+	}	
 
 	// Calcuates the final pixel color with fog
-	finalFragColor = mix(vec4(skyColor, 1), fragColor * vec4(lightColor, 1), visibility);
+	finalFragColor = mix(vec4(skyColor, 1), totalColor * vec4(lightColor, 1), visibility);
 }

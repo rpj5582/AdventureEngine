@@ -8,21 +8,22 @@ namespace AdventureEngine
 	class CameraComponent : public Component
 	{
 	public:
-		CameraComponent(Object* object);
-		CameraComponent(Object* object, float perspectiveFOV);
-		CameraComponent(Object* object, float orthoSize, float maxZ);
-		CameraComponent(Object* object, float perspectiveFOV, float orthoSize, float maxZ, bool usePerspective);
+		CameraComponent();
+		CameraComponent(float perspectiveFOV);
+		CameraComponent(int orthoSize, int maxZ);
+		CameraComponent(float perspectiveFOV, int orthoSize, int maxZ, bool usePerspective);
 		~CameraComponent();
 
-		void initFromJSON(AssetManager* assetManager, json assets, json args) override;
-		void update() override;
-
-		glm::mat4 calculateCameraMatrix(float aspectRatio) const;
+		glm::mat4 getProjectionMatrix(float aspectRatio) const;
+		glm::mat4 getViewMatrix() const;
 
 	private:
+		void init() override;
+		void update() override;
+
 		float m_fov;
-		float m_orthoSize;
-		float m_maxZ;
+		int m_orthoSize;
+		int m_maxZ;
 		bool m_usePerspective;
 	};
 }

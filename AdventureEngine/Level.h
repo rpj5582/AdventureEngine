@@ -1,13 +1,18 @@
 #pragma once
 
+#include <iostream>
+
 #include "AssetManager.h"
 
 #include "Object.h"
 
-#include "ComponentRegistry.h"
-#include "RenderComponent.h"
 #include "CameraComponent.h"
-#include "TestComponent.h"
+#include "RenderComponent.h"
+#include "ShaderComponent.h"
+#include "LightComponent.h"
+#include "TerrainModelComponent.h"
+
+#define MAX_LIGHTS 16
 
 namespace AdventureEngine
 {
@@ -17,16 +22,22 @@ namespace AdventureEngine
 		Level(float* aspectRatio);
 		virtual ~Level();
 
-		bool load(const char* levelPath);
+		virtual bool load();
 		void update();
-		void draw();
+		void render() const;
+
+	protected:
+		GLuint getDefaultShaderID() const;
+		std::vector<Object*> lights;
+		std::vector<Object*> objects;
+		Object* mainCamera;
 
 	private:
+		void uploadMatrices(const Object* const object) const;
+		void renderModel(const Model* model) const;
+
+		Shader* m_defaultShader;
+
 		float* m_aspectRatio;
-
-		AssetManager* m_assetManager;
-
-		std::vector<Object*> m_objects;
-		Object* m_mainCamera;
 	};
 }

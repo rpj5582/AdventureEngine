@@ -1,0 +1,9 @@
+-Try to convert to degrees
+-Spotlights
+-Fluid dynamics, water, etc.
+-Shadows
+
+BUGS:
+
+OPTIMIZATIONS:
+-Draw objects that use the same textures and models in order

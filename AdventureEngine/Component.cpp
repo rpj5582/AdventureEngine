@@ -2,9 +2,9 @@
 
 namespace AdventureEngine
 {
-	Component::Component(Object* obj)
+	Component::Component()
 	{
-		object = obj;
+		
 	}
 
 	Component::~Component()

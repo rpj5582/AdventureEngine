@@ -3,181 +3,210 @@
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 #include <glm\gtx\euler_angles.hpp>
-#include <json.hpp>
 
-#include <iostream>
 #include <fstream>
-
-using nlohmann::json;
 
 namespace AdventureEngine
 {
 	Level::Level(float* aspectRatio)
 	{
 		m_aspectRatio = aspectRatio;
-
-		m_assetManager = new AssetManager();
 	}
 
 	Level::~Level()
 	{
-		delete m_assetManager;
+		delete m_defaultShader;
 
-		for (unsigned int i = 0; i < m_objects.size(); i++)
+		AssetManager::clean();
+
+		for (unsigned int i = 0; i < objects.size(); i++)
 		{
-			delete m_objects[i];
+			delete objects[i];
 		}
 
 		m_aspectRatio = nullptr;
 	}
 
-	bool Level::load(const char* levelPath)
+	bool Level::load()
 	{
-		// Opens the level json file
-		std::ifstream ifs(levelPath);
-		if (ifs.is_open())
+		m_defaultShader = new Shader("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
+		if (!m_defaultShader->load())
 		{
-			// Reads in the json
-			std::string jsonString = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
-			const char* jsonCString = jsonString.c_str();
-
-			// Parses the string to a json object
-			json j = json::parse(jsonCString);
-
-			// Name of the level
-			std::string levelName = j["name"];
-
-			// Name of the main camera object
-			std::string cameraName = "";
-			if (j.count("main_camera") == 1)
-			{
-				cameraName = j["main_camera"];
-			}
-
-			// Gets the list of objects in the level
-			json objects = j["objects"];
-
-			// Map of all assets loaded by this level
-			std::unordered_map<std::string, Asset*> assetMap;
-
-			// Register all components
-			ComponentRegistry registry;
-
-			for (unsigned int i = 0; i < objects.size(); i++)
-			{
-				json object = objects[i];
-
-				// Load in the object name if it exists
-				std::string name;
-				if (object.count("name") == 1)
-				{
-					name = object["name"];
-				}
-
-				// Loads in the position if it exists
-				glm::vec3 position;
-				if (object.count("position") == 1)
-				{
-					position = glm::vec3(object["position"]["x"], object["position"]["y"], object["position"]["z"]);
-				}
-
-				// Loads in the rotation if it exists
-				glm::vec3 rotation;
-				if (object.count("rotation") == 1)
-				{
-					rotation = glm::vec3(object["rotation"]["x"], object["rotation"]["y"], object["rotation"]["z"]);
-				}
-
-				// Loads in the scale if it exists
-				glm::vec3 scale;
-				if (object.count("scale") == 1)
-				{
-					scale = glm::vec3(object["scale"]["x"], object["scale"]["y"], object["scale"]["z"]);
-				}
-
-				// Creates the Object
-				Object* obj = new Object(name, position, rotation, scale);
-
-				// Adds each component in the component list
-				if (object.count("components") == 1)
-				{
-					json components = object["components"];
-					for (unsigned int i = 0; i < components.size(); i++)
-					{
-						json component = components[i];
-						std::string componentName = component["name"];
-						json componentAssets = component["assets"];
-						json componentArgs = component["args"];
-
-						Component* c = obj->addRegisteredComponent(componentName);
-						c->initFromJSON(m_assetManager, componentAssets, componentArgs);
-					}
-				}
-
-				if (cameraName != "" && name == cameraName)
-				{
-					m_mainCamera = obj;
-				}
-
-				m_objects.push_back(obj);
-			}
-
-			if (m_mainCamera == nullptr)
-			{
-				std::cout << "Main camera not assigned!" << std::endl;
-			}
-
-			ifs.close();
-			return true;
+			return false;
 		}
 
-		return false;
+		m_defaultShader->use();
+
+		AssetManager::init();
+		return true;
 	}
 
 	void Level::update()
 	{
-		for (unsigned int i = 0; i < m_objects.size(); i++)
+		for (unsigned int i = 0; i < objects.size(); i++)
 		{
-			m_objects[i]->update();
+			/// UPDATE OBJECTS
+			objects[i]->update();
+
+			/// HANDLE COLLISIONS
+			// NOT YET IMPLEMENTED
 		}
 	}
 
-	void Level::draw()
+	void Level::render() const
 	{
-		for (unsigned int i = 0; i < m_objects.size(); i++)
+		// Defines the sky color
+		glm::vec3 skyColor = glm::vec3(0.8f, 0.8f, 0.8f);
+
+		// Clears the screen with the sky color
+		glClearColor(skyColor.r, skyColor.g, skyColor.b, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Draws each object
+		for (unsigned int i = 0; i < objects.size(); i++)
 		{
-			glm::mat4 translationMatrix = glm::translate(m_objects[i]->position);
-			glm::mat4 rotationMatrix = glm::yawPitchRoll(m_objects[i]->rotation.y, m_objects[i]->rotation.x, m_objects[i]->rotation.z);
-			glm::mat4 scaleMatrix = glm::scale(m_objects[i]->scale);
-
-			// Model matrix
-			glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
-
-			if (m_mainCamera)
+			// Uses the model's shader
+			const ShaderComponent* shaderComponent = objects[i]->getComponent<ShaderComponent>();
+			if (shaderComponent)
 			{
-				// model-view-projection matrix
-				glm::mat4 mvp = m_mainCamera->getComponent<CameraComponent>()->calculateCameraMatrix(*m_aspectRatio) * modelMatrix;
-
-				// Sends the mvp matrix to the graphics card
-				glUniformMatrix4fv(3, 1, GL_FALSE, &mvp[0][0]);
-			}			
-
-			// Draws the object
-			RenderComponent* renderComponent = m_objects[i]->getComponent<RenderComponent>();
-			if (renderComponent && renderComponent->model)
+				shaderComponent->m_shader->use();
+			}
+			else
 			{
-				if (renderComponent->texture)
-				{
-					glBindTexture(GL_TEXTURE_2D, renderComponent->texture->getAssetID());
-				}
-				else
-				{
-					glBindTexture(GL_TEXTURE_2D, 0);
-				}
+				m_defaultShader->use();
+			}
 
-				glBindVertexArray(renderComponent->model->getAssetID());
-				glDrawArrays(GL_TRIANGLES, 0, renderComponent->model->getVertexCount());
+			// Upload the sky color
+			glUniform3f(7, skyColor.r, skyColor.g, skyColor.b);
+
+			// Handles the materials and textures
+			const RenderComponent* renderComponent = objects[i]->getComponent<RenderComponent>();
+			if (renderComponent)
+			{
+				// Uploads the UV scale for terrain tiling
+				glUniform2f(13, objects[i]->scale.x, objects[i]->scale.z);
+
+				GLuint prevTextureID = 0;
+				GLuint textureID = 0;
+				for (unsigned int j = 0; j < renderComponent->materials.size(); j++)
+				{
+					// Gets the material
+					const Material* material = renderComponent->materials[j];
+
+					// Uploads the material properties
+					glUniform1f(5, material->getReflectivity());
+					glUniform1f(6, material->getSpecularDamping());
+
+					// Gets the texture and texture ID
+					const Texture* texture = material->getTexture();
+					textureID = texture->getID();
+
+					// Gets the texture atlas index
+					unsigned int atlasIndex = material->getAtlasIndex();
+
+					// Uploads the atlas size, used for atlas uv calculation
+					glm::uvec2 atlasSize = texture->getAtlasSize();
+					glUniform2ui(3, atlasSize.x, atlasSize.y);
+
+					// Calculates the x-offset
+					float xOffset = atlasIndex % atlasSize.x / (float)atlasSize.x;
+
+					// Flips the y-offset so that texture index 0 is in the top left, not the bottom left
+					unsigned int column = atlasIndex % atlasSize.x;
+					unsigned int row = atlasSize.y - atlasIndex / atlasSize.x - 1;
+					float yOffset = (column + atlasSize.x * row) / atlasSize.y / (float)atlasSize.y;
+
+					// Uploads the x and y atlas offset, used for altas uv calculation
+					glUniform2f(4, xOffset, yOffset);
+
+					// Uploads the texture unit
+					glUniform1i(8 + j, j);
+
+					// If the texture ID is the same as the last one, don't bother binding it
+					if (prevTextureID == textureID) continue;
+
+					// Activates and binds the textures
+					glActiveTexture(GL_TEXTURE0 + j);
+					glBindTexture(GL_TEXTURE_2D, textureID);
+
+					// Updates the previous texture ID
+					prevTextureID = textureID;
+				}
+			}
+
+			// Handles rendering the model
+			const ModelComponent* modelComponent = objects[i]->getComponent<ModelComponent>();
+			if (modelComponent)
+			{
+				// Upload the necessary matrices to the shader
+				uploadMatrices(objects[i]);
+
+				// Renders the model
+				renderModel(modelComponent->getModel());
+
+				// Cleans up the texture binds
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+
+			// Uploads each light to the graphics card
+			for (unsigned int i = 0; i < lights.size(); i++)
+			{
+				// Can't upload more than the maximum number of lights
+				if (i == MAX_LIGHTS) break;
+
+				// Uploads a point light
+				LightComponent* lightComponent = lights[i]->getComponent<LightComponent>();
+				if (lightComponent)
+				{
+					if (lightComponent->isDirectionalLight)
+					{
+						glm::vec3 forward = lights[i]->getForward();
+						glUniform4f(14 + i * 3, forward.x, forward.y, forward.z, 0); // direction
+					}
+					else
+					{
+						glUniform4f(14 + i * 3, lights[i]->position.x, lights[i]->position.y, lights[i]->position.z, 1); // position
+					}
+					
+					glUniform3f(15 + i * 3, lightComponent->color.x, lightComponent->color.y, lightComponent->color.z); // color
+					glUniform1f(16 + i * 3, lightComponent->radius); // radius
+				}
 			}
 		}
+	}
+
+	void Level::uploadMatrices(const Object* const object) const
+	{
+		// Model matrix
+		glm::mat4 modelMatrix = object->getModelMatrix();
+
+		// Sends the model matrix to the graphics card
+		glUniformMatrix4fv(0, 1, GL_FALSE, &modelMatrix[0][0]);
+
+		if (mainCamera)
+		{
+			// model-view-projection matrix
+			CameraComponent* cameraComponent = mainCamera->getComponent<CameraComponent>();
+			if (cameraComponent)
+			{
+				glm::mat4 viewMatrix = cameraComponent->getViewMatrix();
+				glm::mat4 projectionMatrix = cameraComponent->getProjectionMatrix(*m_aspectRatio);
+
+				// Sends the camera matrices to the graphics card
+				glUniformMatrix4fv(1, 1, GL_FALSE, &viewMatrix[0][0]);
+				glUniformMatrix4fv(2, 1, GL_FALSE, &projectionMatrix[0][0]);
+			}
+		}
+	}
+
+	void Level::renderModel(const Model* model) const
+	{
+		glBindVertexArray(model->getID());
+		glDrawElements(GL_TRIANGLES, model->getVertexCount(), GL_UNSIGNED_INT, 0);
+	}
+
+	GLuint Level::getDefaultShaderID() const
+	{
+		return m_defaultShader->getID();
 	}
 }

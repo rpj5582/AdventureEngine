@@ -5,28 +5,47 @@
 
 #include <unordered_map>
 
-#include "ModelAsset.h"
-#include "TextureAsset.h"
+#include "Model.h"
+#include "Material.h"
 
 namespace AdventureEngine
 {
 	class AssetManager
 	{
 	public:
-		AssetManager();
-		~AssetManager();
+		static void init();
+		static void clean();
 
-		ModelAsset* loadModel(std::string name, std::string filepath);
-		TextureAsset* loadTexture(std::string name, std::string filepath);
+		static Model* loadModel(std::string filepath);
 
-		ModelAsset* getModel(std::string name);
-		TextureAsset* getTexture(std::string name);
+		static Texture* loadTexture(std::string filepath);
+		static Texture* loadTexture(std::string filepath, glm::uvec2 atlasSize);
+
+		static Model* getModel(std::string filepath);
+		static Texture* getTexture(std::string filepath);
+
+		static Material* createMaterial(Texture* texture);
+		static Material* createMaterial(Texture* texture, float reflectivity);
+		static Material* createMaterial(Texture* texture, float reflectivity, float specularDamping);
+		static Material* createMaterial(Texture* texture, unsigned int atlasIndex);
+		static Material* createMaterial(Texture* texture, unsigned int atlasIndex, float reflectivity);
+		static Material* createMaterial(Texture* texture, unsigned int atlasIndex, float reflectivity, float specularDamping);
+
+		static Model* bufferModel(const std::vector<GLfloat> positionData, const std::vector<GLfloat> uvData, const std::vector<GLfloat> normalData, const std::vector<GLuint> indices);
 
 	private:
-		void generatePrimitives();
-		ModelAsset* bufferModel(std::string name, const GLfloat* modelData, unsigned int vertexCount);
+		static void generatePrimitives();
+		static Model* bufferModel(std::string filepath, const std::vector<GLfloat> positionData, const std::vector<GLfloat> uvData, const std::vector<GLfloat> normalData, const std::vector<GLuint> indices);
+		static GLuint createVBO(GLuint attributeIndex, GLsizei attributeSize, GLsizei dataSize, const GLfloat* data);
+		static GLuint createIndicesVBO(const GLuint* indices, GLsizei size);
 
-		std::unordered_map<std::string, TextureAsset*> m_textures;
-		std::unordered_map<std::string, ModelAsset*> m_models;
+		static std::unordered_map<std::string, GLuint> m_textureIDs;
+		static std::unordered_map<GLuint, Texture*> m_textures;
+
+		static std::unordered_map<std::string, GLuint> m_modelPrimitives;
+		static std::unordered_map<std::string, GLuint> m_modelIDs;
+		static std::unordered_map<GLuint, Model*> m_models;
+
+		static std::vector<Material*> m_materials;
 	};
 }

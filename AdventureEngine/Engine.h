@@ -4,7 +4,7 @@
 #include <GLFW\glfw3.h>
 
 #include "Input.h"
-#include "Level.h"
+#include "TestLevel.h"
 
 namespace AdventureEngine
 {
@@ -25,12 +25,6 @@ namespace AdventureEngine
 
 		int m_windowWidth;
 		int m_windowHeight;
-
-		bool loadShaderProgram();
-		GLuint loadShader(const char* filepath, GLenum shaderType);
-		GLuint m_programID;
-
-		GLuint m_quadVAO;
 
 		Level* m_level;
 	};

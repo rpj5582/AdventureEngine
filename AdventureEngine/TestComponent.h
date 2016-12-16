@@ -8,9 +8,10 @@ using namespace AdventureEngine;
 class TestComponent : public Component
 {
 public:
-	TestComponent(Object* object);
+	TestComponent();
 	~TestComponent();
 
-	void initFromJSON(AssetManager* assetManager, json assets, json args) override;
+private:
+	void init() override;
 	void update() override;
 };
