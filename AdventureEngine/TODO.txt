@@ -1,7 +1,10 @@
--Try to convert to degrees
--Spotlights
+IDEAS:
 -Fluid dynamics, water, etc.
 -Shadows
+-Deferred rendering
+
+BUSY WORK:
+-Make classes final
 
 BUGS:
 
