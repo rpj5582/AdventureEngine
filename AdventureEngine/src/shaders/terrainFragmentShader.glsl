@@ -82,7 +82,7 @@ vec3 calculateLighting(Light light, vec4 color)
 void main()
 {
 	// Tiles the UV
-	vec2 tiledUV = uv * uvScale * uvScale;
+	vec2 tiledUV = uv * uvScale;
 
 	// Gets the color from the blend map
 	vec4 blendMapColor = texture(blendMap, uv);
@@ -95,6 +95,8 @@ void main()
 
 	// Calculates the total color for this pixel
 	vec4 totalColor = texture0Color + texture1Color + texture2Color + texture3Color;
+
+	if(totalColor.a < 0.5f) discard;
 
 	vec3 lightColor = vec3(0);
 	for(int i = 0; i < lights.length(); i++)

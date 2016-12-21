@@ -1,12 +1,14 @@
 IDEAS:
--Fluid dynamics, water, etc.
+-Water
 -Shadows
 -Deferred rendering
 
 BUSY WORK:
--Make classes final
+-Make Shader class a resource
+-Make classes final?
 
 BUGS:
+-Alpha blending is bugged
 
 OPTIMIZATIONS:
 -Draw objects that use the same textures and models in order

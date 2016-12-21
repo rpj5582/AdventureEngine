@@ -30,12 +30,12 @@ namespace AdventureEngine
 		m_windowHeight = windowHeight;
 		aspectRatio = windowWidth / (float)windowHeight;
 
-		m_level = nullptr;
+		m_scene = nullptr;
 	}
 
 	Engine::~Engine()
 	{
-		delete m_level;
+		delete m_scene;
 	}
 
 	void Engine::start()
@@ -82,18 +82,18 @@ namespace AdventureEngine
 		glEnable(GL_DEPTH_TEST);
 
 		// Enables transparency
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.75f);
+		//glEnable(GL_ALPHA_TEST);
+		//glAlphaFunc(GL_GREATER, 0.5f);
 
 		std::cout << "Engine started." << std::endl;
 
-		m_level = new TestLevel(&aspectRatio);
+		m_scene = new TestScene(&aspectRatio);
 
-		// Loads the first level
-		if (!m_level->load())
+		// Loads the first scene
+		if (!m_scene->load())
 		{ 
 			return;
 		}
@@ -136,11 +136,11 @@ namespace AdventureEngine
 			// Polls the input
 			glfwPollEvents();
 
-			// Updates the level
-			m_level->update(m_deltaTime);
+			// Updates the scene
+			m_scene->update(m_deltaTime);
 
-			// Draws the level
-			m_level->render();
+			// Draws the scene
+			m_scene->render();
 			glfwSwapBuffers(m_window);
 
 			m_frameTimer += m_deltaTime;

@@ -31,7 +31,7 @@ layout (location = 6) uniform float specularDamping;
 // Sky color, used for fog
 layout (location = 7) uniform vec3 skyColor;
 
-// Texture uniforms
+// Texture uniform
 layout (location = 8) uniform sampler2D theTexture;
 
 // Lights
@@ -76,6 +76,8 @@ void main()
 {
 	// Gets the fragment color
 	vec4 fragColor = texture(theTexture, uv);
+
+	if(fragColor.a < 0.5f) discard;
 
 	vec3 lightColor = vec3(0);
 	for(int i = 0; i < lights.length(); i++)

@@ -1,17 +1,24 @@
 #pragma once
 #include "Component.h"
 
+#include "Shader.h"
+
 namespace AdventureEngine
 {
 	class RenderComponent : public Component
 	{
 	public:
-		RenderComponent();
-		RenderComponent(const Material* material);
-		RenderComponent(std::vector<const Material*> materials);
+		RenderComponent(const Model* model);
+		RenderComponent(const Model* model, const Material* material);
+		RenderComponent(const Model* model, const Shader* shader);
+		RenderComponent(const Model* model, const Material* material, const Shader* shader);
+		RenderComponent(const Model* model, std::vector<const Material*> materials);
+		RenderComponent(const Model* model, std::vector<const Material*> materials, const Shader* shader);
 		~RenderComponent();
 
+		const Model* model;
 		std::vector<const Material*> materials;
+		const Shader* shader;
 
 	private:
 		void init() override;

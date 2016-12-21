@@ -2,10 +2,9 @@
 
 namespace AdventureEngine
 {
-	Material::Material(Texture* texture, unsigned int atlasIndex, float reflectivity, float specularDamping)
+	Material::Material(Texture* texture, float reflectivity, float specularDamping)
 	{
 		m_texture = texture;
-		m_atlasIndex = atlasIndex;
 
 		m_reflectivity = reflectivity;
 		m_specularDamping = specularDamping;
@@ -18,11 +17,6 @@ namespace AdventureEngine
 	const Texture* Material::getTexture() const
 	{
 		return m_texture;
-	}
-
-	unsigned int Material::getAtlasIndex() const
-	{
-		return m_atlasIndex;
 	}
 
 	float Material::getReflectivity() const

@@ -4,7 +4,7 @@
 #include <GLFW\glfw3.h>
 
 #include "Input.h"
-#include "TestLevel.h"
+#include "TestScene.h"
 
 namespace AdventureEngine
 {
@@ -32,6 +32,6 @@ namespace AdventureEngine
 		float m_frameTimer;
 		unsigned int m_frameCount;
 
-		Level* m_level;
+		Scene* m_scene;
 	};
 }

@@ -1,16 +1,15 @@
 #pragma once
-#include "Level.h"
+#include "Scene.h"
 
-#include "TerrainModelComponent.h"
 #include "TestComponent.h"
 
 using namespace AdventureEngine;
 
-class TestLevel : public Level
+class TestScene : public Scene
 {
 public:
-	TestLevel(float* aspectRatio);
-	~TestLevel();
+	TestScene(float* aspectRatio);
+	~TestScene();
 
 	virtual bool load() override;
 
