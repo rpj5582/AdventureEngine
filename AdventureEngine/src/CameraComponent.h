@@ -8,10 +8,10 @@ namespace AdventureEngine
 	class CameraComponent : public Component
 	{
 	public:
-		CameraComponent(float* aspectRatio);
-		CameraComponent(float* aspectRatio, float perspectiveFOV);
-		CameraComponent(float* aspectRatio, int orthoSize, int maxZ);
-		CameraComponent(float* aspectRatio, float perspectiveFOV, int orthoSize, int maxZ, bool usePerspective);
+		CameraComponent(const int* windowWidth, const int* windowHeight);
+		CameraComponent(const int* windowWidth, const int* windowHeight, float perspectiveFOV);
+		CameraComponent(const int* windowWidth, const int* windowHeight, int orthoSize, int maxZ);
+		CameraComponent(const int* windowWidth, const int* windowHeight, float perspectiveFOV, int orthoSize, int maxZ, bool usePerspective);
 		~CameraComponent();
 
 		glm::mat4 getProjectionMatrix() const;
@@ -21,7 +21,8 @@ namespace AdventureEngine
 		void init() override;
 		void update(float deltaTime) override;
 
-		float* m_aspectRatio;
+		const int* m_windowWidth;
+		const int* m_windowHeight;
 		float m_fov;
 		int m_orthoSize;
 		int m_maxZ;

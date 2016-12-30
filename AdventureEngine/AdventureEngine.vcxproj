@@ -36,9 +36,13 @@
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\RenderComponent.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\SkyboxComponent.cpp" />
+    <ClCompile Include="src\SkyboxRenderer.cpp" />
     <ClCompile Include="src\TestComponent.cpp" />
     <ClCompile Include="src\TestScene.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\WaterComponent.cpp" />
+    <ClCompile Include="src\WaterRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GUIComponent.h" />
@@ -57,9 +61,13 @@
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\RenderComponent.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\SkyboxComponent.h" />
+    <ClInclude Include="src\SkyboxRenderer.h" />
     <ClInclude Include="src\TestComponent.h" />
     <ClInclude Include="src\TestScene.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\WaterComponent.h" />
+    <ClInclude Include="src\WaterRenderer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EBCBEDAE-EF55-485F-9C7D-89414848F37F}</ProjectGuid>
@@ -112,20 +120,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x86;$(ProjectDir)src\lib\glew-2.0.0\lib\x86;$(ProjectDir)src\lib\glfw-3.2.1\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(ProjectDir)src\lib\OpenAL-1.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x86;$(ProjectDir)src\lib\glew-2.0.0\lib\x86;$(ProjectDir)src\lib\glfw-3.2.1\lib\x86;$(ProjectDir)src\lib\OpenAL-1.1\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x64;$(ProjectDir)src\lib\glew-2.0.0\lib\x64;$(ProjectDir)src\lib\glfw-3.2.1\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(ProjectDir)src\lib\OpenAL-1.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)src\lib\OpenAL-1.1\lib\x64;$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x64;$(ProjectDir)src\lib\glew-2.0.0\lib\x64;$(ProjectDir)src\lib\glfw-3.2.1\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x86;$(ProjectDir)src\lib\glew-2.0.0\lib\x86;$(ProjectDir)src\lib\glfw-3.2.1\lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(ProjectDir)src\lib\OpenAL-1.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x86;$(ProjectDir)src\lib\glew-2.0.0\lib\x86;$(ProjectDir)src\lib\glfw-3.2.1\lib\x86;$(ProjectDir)src\lib\OpenAL-1.1\lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x64;$(ProjectDir)src\lib\glew-2.0.0\lib\x64;$(ProjectDir)src\lib\glfw-3.2.1\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(ProjectDir)src\lib\FreeImage-3.17.0\include;$(ProjectDir)src\lib\glm-0.9.8.3\include;$(ProjectDir)src\lib\glew-2.0.0\include;$(ProjectDir)src\lib\glfw-3.2.1\include;$(ProjectDir)src\lib\OpenAL-1.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)src\lib\OpenAL-1.1\lib\x64;$(ProjectDir)src\lib\FreeImage-3.17.0\lib\x64;$(ProjectDir)src\lib\glew-2.0.0\lib\x64;$(ProjectDir)src\lib\glfw-3.2.1\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -135,7 +143,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;FreeImage.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -147,7 +155,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;FreeImage.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -162,7 +170,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;FreeImage.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -178,6 +186,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;FreeImage.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

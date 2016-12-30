@@ -2,6 +2,10 @@
 
 #include "Shader.h"
 
+#include <vector>
+
+#define MAX_LIGHTS 16
+
 namespace AdventureEngine
 {
 	class Renderer

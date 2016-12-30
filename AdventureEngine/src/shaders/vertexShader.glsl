@@ -1,12 +1,5 @@
 #version 430
 
-struct Light
-{
-	vec4 position;
-	vec3 color;
-	float radius;
-};
-
 // VAO Input
 layout (location = 0) in vec3 position_in;
 layout (location = 1) in vec2 uv_in;
@@ -21,21 +14,27 @@ layout (location = 2) uniform mat4 projectionMatrix;
 layout (location = 3) uniform uvec2 atlasSize;
 layout (location = 4) uniform vec2 atlasOffset;
 
+// Height of the horizontal clip plane
+layout (location = 14) uniform vec4 clipPlane;
+
 out vec3 position;
 out vec2 uv;
 out vec3 normal;
 
-out vec3 cameraDirection;
+out vec3 cameraPosition;
 
 out float visibility;
 
 // Fog constants
 const float density = 0.005f;
-const float gradient = 5.0f;
+const float gradient = 1.0f;
 
 void main()
 {
 	vec4 worldPosition = modelMatrix * vec4(position_in, 1); // Position in world space
+
+	gl_ClipDistance[0] = dot(worldPosition, clipPlane);
+
 	vec4 positionCameraSpace = viewMatrix * worldPosition; // Position in camera space
 	gl_Position = projectionMatrix * positionCameraSpace; // Final position
 
@@ -47,8 +46,8 @@ void main()
 	// Calculates the normal in world space
 	normal = normalize(modelMatrix * vec4(normal_in, 0)).xyz;
 
-	// Calculates the light's direction, distance and the camera's direction, used for lighting calculations in the fragment shader
-	cameraDirection = normalize((inverse(viewMatrix) * vec4(0, 0, 0, 1)).xyz - worldPosition.xyz);
+	// Calculates the camera's position, used for lighting calculations in the fragment shader
+	cameraPosition = (inverse(viewMatrix) * vec4(0, 0, 0, 1)).xyz;
 
 	// Calculates the visibility factor for fog
 	float distance = length(positionCameraSpace.xyz);

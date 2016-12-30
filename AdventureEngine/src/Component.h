@@ -13,6 +13,8 @@ namespace AdventureEngine
 		Component();
 		virtual ~Component();
 
+		Object* getObject() const;
+
 	protected:
 		Object* object;
 

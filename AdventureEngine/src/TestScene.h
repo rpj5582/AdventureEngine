@@ -8,7 +8,7 @@ using namespace AdventureEngine;
 class TestScene : public Scene
 {
 public:
-	TestScene(float* aspectRatio);
+	TestScene(const int* windowWidth, const int* windowHeight);
 	~TestScene();
 
 	virtual bool load() override;

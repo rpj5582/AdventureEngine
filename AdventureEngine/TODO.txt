@@ -1,11 +1,16 @@
 IDEAS:
--Water
 -Shadows
 -Deferred rendering
+-Day and night cycle
+-Audio
 
 BUSY WORK:
 -Make Shader class a resource
+-Separate Texture class into Texture, Cubemap, and Texture Atlas
 -Make classes final?
+-Upload fog density and gradient as uniforms
+-Upload camera near and far planes as uniforms
+-Separate AssetManager into multiple asset managers, and have one master AssetManager that controls them all
 
 BUGS:
 -Alpha blending is bugged

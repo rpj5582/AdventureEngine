@@ -8,17 +8,13 @@
 
 namespace AdventureEngine
 {
-	std::unordered_map<std::string, GLuint> AssetManager::m_textureIDs;
 	std::unordered_map<GLuint, std::vector<Texture*>> AssetManager::m_textures;
-
-	std::unordered_map<std::string, GLuint> AssetManager::m_modelPrimitiveIDs;
-	std::unordered_map<std::string, GLuint> AssetManager::m_modelIDs;
 	std::unordered_map<GLuint, Model*> AssetManager::m_models;
-
 	std::vector<Material*> AssetManager::m_materials;
 
 	void AssetManager::init()
 	{
+		FreeImage_SetOutputMessage(AssetManager::freeImageOutputMessage);
 		generatePrimitives();
 	}
 
@@ -39,7 +35,11 @@ namespace AdventureEngine
 				{
 					GLuint textureID = it->second[i]->getID();
 
-					FreeImage_Unload(it->second[i]->getImageData());
+					for (unsigned int j = 0; j < it->second[i]->getImageDataSize(); j++)
+					{
+						FreeImage_Unload(it->second[i]->getImageData(j));
+					}
+
 					glDeleteTextures(1, &textureID);
 				}
 
@@ -49,14 +49,17 @@ namespace AdventureEngine
 			it->second.clear();
 		}
 		m_textures.clear();
-		m_textureIDs.clear();
 
 		for (auto it = m_models.begin(); it != m_models.end(); it++)
 		{
 			delete it->second;
 		}
 		m_models.clear();
-		m_modelIDs.clear();
+	}
+
+	Model* AssetManager::getModelPrimitive(ModelPrimitive primitive)
+	{
+		return m_models.at(primitive + 1);
 	}
 
 	Model* AssetManager::genTerrainModel(const Texture* heightMap)
@@ -162,16 +165,6 @@ namespace AdventureEngine
 
 	Model* AssetManager::loadModel(std::string file)
 	{
-		if (m_modelPrimitiveIDs.find(file) != m_modelPrimitiveIDs.end())
-		{
-			return m_models.at(m_modelPrimitiveIDs.at(file));
-		}
-
-		if (m_modelIDs.find(file) != m_modelIDs.end())
-		{
-			return m_models.at(m_modelIDs.at(file));
-		}
-
 		std::string filepath = "res/models/" + file;
 
 		std::ifstream ifs(filepath);
@@ -273,12 +266,6 @@ namespace AdventureEngine
 			ifs.close();
 
 			Model* model = bufferModel(positions, uvs, normals, indices);
-
-			if (file != "")
-			{
-				m_modelIDs[file] = model->getID();
-			}
-
 			m_models[model->getID()] = model;
 
 			return model;
@@ -288,38 +275,86 @@ namespace AdventureEngine
 		return nullptr;
 	}
 
+	Texture* AssetManager::createEmptyTexture(GLuint width, GLuint height)
+	{
+		// Creates the texture
+		GLuint textureID;
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+
+		// Uploads the image data to the graphics card's VRAM
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Unbinds the texture
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Creates the texture object
+		Texture* texture = new Texture(textureID, { }, 0, glm::vec2(1, 1));
+
+		// Save the texture id in the map
+		m_textures[textureID].push_back(texture);
+
+		return texture;
+	}
+
+	Texture* AssetManager::createEmptyDepthTexture(GLuint width, GLuint height)
+	{
+		// Generates a new texture
+		GLuint depthTextureID;
+		glGenTextures(1, &depthTextureID);
+
+		// Binds the texture for use
+		glBindTexture(GL_TEXTURE_2D, depthTextureID);
+
+		// Creates an empty depth texture
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
+
+		// Sets the texture parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Unbinds the texture
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Creates the texture object
+		Texture* texture = new Texture(depthTextureID, { }, 0, glm::vec2(1, 1));
+
+		// Save the texture id in the map
+		m_textures[depthTextureID].push_back(texture);
+
+		return texture;
+	}
+
+	Texture* AssetManager::getTextureFromAtlas(Texture* atlas, unsigned int atlasIndex, glm::uvec2 atlasSize)
+	{
+		if (!atlas) return nullptr;
+
+		Texture* texture = new Texture(atlas->getID(), { atlas->getImageData() }, atlasIndex, atlasSize);
+		m_textures[atlas->getID()].push_back(texture);
+
+		return texture;
+	}
+
 	Texture* AssetManager::loadTexture(std::string file)
 	{
-		return loadTexture(file, 0, glm::uvec2(1, 1));
+		return loadTexture(file, false);
+	}
+
+	Texture* AssetManager::loadTexture(std::string file, bool generateMipMaps)
+	{
+		return loadTexture(file, 0, glm::uvec2(1, 1), generateMipMaps);
 	}
 
 	Texture* AssetManager::loadTexture(std::string file, unsigned int atlasIndex, glm::uvec2 atlasSize)
 	{
-		// Checks if the texture has already been loaded
-		if (m_textureIDs.find(file) != m_textureIDs.end())
-		{
-			GLuint textureID = m_textureIDs.at(file);
-			std::vector<Texture*> textures = m_textures.at(textureID);
-			for (unsigned int i = 0; i < textures.size(); i++)
-			{
-				Texture* testTexture = textures[i];
+		return loadTexture(file, atlasIndex, atlasSize, false);
+	}
 
-				if (testTexture->getAtlasIndex() == atlasIndex && testTexture->getAtlasSize() == atlasSize)
-				{
-					return testTexture;
-				}
-			}
-
-			// None of the textures were exactly the same, so make a new one
-			Texture* texture = new Texture(textureID, textures[0]->getImageData(), atlasIndex, atlasSize);
-
-			// Adds the texture copy to the texture map
-			m_textures[textureID].push_back(texture);
-
-			return texture;
-			
-		}
-
+	Texture* AssetManager::loadTexture(std::string file, unsigned int atlasIndex, glm::uvec2 atlasSize, bool generateMipMaps)
+	{
 		std::string filepath = "res/textures/" + file;
 
 		// Loads the image from the filepath
@@ -332,7 +367,7 @@ namespace AdventureEngine
 		// Converts to a 32 bit image to be consistent
 		FIBITMAP* image = FreeImage_ConvertTo32Bits(rawImage);
 
-		// Creates the opengl texture
+		// Creates the texture
 		GLuint textureID;
 		glGenTextures(1, &textureID);
 		glBindTexture(GL_TEXTURE_2D, textureID);
@@ -341,21 +376,68 @@ namespace AdventureEngine
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, FreeImage_GetWidth(image), FreeImage_GetHeight(image), 0, GL_BGRA, GL_UNSIGNED_BYTE, FreeImage_GetBits(image));
 
 		// Generates mipmaps for the texture
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1);
-
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		if (generateMipMaps)
+		{
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1);
+		}
+		else
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
 
 		// Unbinds the texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		// Save the texture id in the set
-		Texture* texture = new Texture(textureID, image, atlasIndex, atlasSize);
+		// Creates the texture object
+		Texture* texture = new Texture(textureID, { image }, atlasIndex, atlasSize);
 
-		m_textureIDs[file] = textureID;
+		// Save the texture in the map
+		m_textures[textureID].push_back(texture);
+
+		return texture;
+	}
+
+	Texture* AssetManager::loadCubeMap(std::vector<std::string> files)
+	{
+		// Creates the texture
+		GLuint textureID;
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+		std::vector<FIBITMAP*> images(6);
+
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			std::string filepath = "res/textures/" + files[i];
+
+			// Loads the image from the filepath
+			FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(filepath.c_str());
+			FIBITMAP* rawImage = FreeImage_Load(imageFormat, filepath.c_str());
+
+			// Returns false if the image could not be loaded
+			if (!rawImage) { continue; }
+
+			// Converts to a 32 bit image to be consistent
+			FIBITMAP* image = FreeImage_ConvertTo32Bits(rawImage);
+
+			images[i] = image;
+
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB_ALPHA, FreeImage_GetWidth(image), FreeImage_GetHeight(image), 0, GL_BGRA, GL_UNSIGNED_BYTE, FreeImage_GetBits(image));
+		}
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		// Unbinds the texture
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+		Texture* texture = new Texture(textureID, images, 0, glm::uvec2(1, 1));
 		m_textures[textureID].push_back(texture);
 
 		return texture;
@@ -381,30 +463,33 @@ namespace AdventureEngine
 	void AssetManager::generatePrimitives()
 	{
 		const std::vector<GLfloat> quadPositions = {
-			-0.5f, 0.5f, 0.0f,
-			-0.5f, -0.5f, 0.0f,
-			0.5f, 0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f
+			-0.5f, 0.0f, 0.5f,
+			-0.5f, 0.0f, -0.5f,
+			0.5f, 0.0f, 0.5f,
+			0.5f, 0.0f, -0.5f
 		};
 
 		const std::vector<GLfloat> quadUVs = {
-			0.0f, 1.0f,
 			0.0f, 0.0f,
-			1.0f, 1.0f,
-			1.0f, 0.0f
+			0.0f, 1.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f
 		};
 
 		const std::vector<GLfloat> quadNormals = {
-			0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f
 		};
 
 		const std::vector<GLuint> quadIndices = {
-			0, 1, 2,
-			2, 1, 3
+			0, 2, 1,
+			1, 2, 3
 		};
+
+		Model* quad = bufferModel(quadPositions, quadUVs, quadNormals, quadIndices);
+		m_models[quad->getID()] = quad;
 
 		const std::vector<GLfloat> guiQuadData =
 		{
@@ -417,13 +502,74 @@ namespace AdventureEngine
 			1.0f, -1.0f, 0.0f // Bottom right
 		};
 
-		Model* quad = bufferModel(quadPositions, quadUVs, quadNormals, quadIndices);
-		m_modelPrimitiveIDs["quad"] = quad->getID();
-		m_models[quad->getID()] = quad;
-
 		Model* guiQuad = bufferModel(guiQuadData, 6);
-		m_modelPrimitiveIDs["guiQuad"] = guiQuad->getID();
 		m_models[guiQuad->getID()] = guiQuad;
+
+		const GLfloat SIZE = 0.5f;
+
+		const std::vector<GLfloat> cubeData = {
+			// Right face
+			SIZE, -SIZE, SIZE, // Right, bottom, front
+			SIZE, -SIZE, -SIZE, // Right, bottom, back
+			SIZE, SIZE, SIZE, // Right, top, front
+			SIZE, SIZE, SIZE, // Right, top, front
+			SIZE, -SIZE, -SIZE, // Right, bottom, back
+			SIZE, SIZE, -SIZE, // Right, top, back
+
+			// Left face
+			-SIZE, -SIZE, -SIZE, // Left, bottom, back
+			-SIZE, -SIZE, SIZE, // Left, bottom, front
+			-SIZE, SIZE, -SIZE, // Left, top, back
+			-SIZE, SIZE, -SIZE, // Left, top, back
+			-SIZE, -SIZE, SIZE, // Left, bottom, front
+			-SIZE, SIZE, SIZE, // Left, top, front
+
+			// Top face
+			-SIZE, SIZE, SIZE, // Left, top, front
+			SIZE, SIZE, SIZE, // Right, top, front
+			-SIZE, SIZE, -SIZE, // Left, top, back
+			-SIZE, SIZE, -SIZE, // Left, top, back
+			SIZE, SIZE, SIZE, // Right, top, front
+			SIZE, SIZE, -SIZE, // Right, top, back
+
+			// Bottom face
+			-SIZE, -SIZE, -SIZE, // Left, bottom, back
+			SIZE, -SIZE, -SIZE, // Right, bottom, back
+			SIZE, -SIZE, SIZE, // Right, bottom, front
+			SIZE, -SIZE, SIZE, // Right, bottom, front
+			-SIZE, -SIZE, SIZE, // Left, bottom, front
+			-SIZE, -SIZE, -SIZE, // Left, bottom, back
+
+			// Back face
+			SIZE, -SIZE, -SIZE, // Right, bottom, back
+			-SIZE, -SIZE, -SIZE, // Left, bottom, back
+			SIZE, SIZE, -SIZE, // Right, top, back
+			SIZE, SIZE, -SIZE, // Right, top, back
+			-SIZE, -SIZE, -SIZE, // Left, bottom, back
+			-SIZE, SIZE, -SIZE, // Left, top, back
+
+			// Front face
+			-SIZE, -SIZE, SIZE, // Left, bottom, front
+			SIZE, -SIZE, SIZE, // Right, bottom, front
+			-SIZE, SIZE, SIZE, // Left, top, front
+			-SIZE, SIZE, SIZE, // Left, top, front
+			SIZE, -SIZE, SIZE, // Right, bottom, front
+			SIZE, SIZE, SIZE, // Right, top, front
+
+
+			//-SIZE, -SIZE, -SIZE, // Left, bottom, back
+			//SIZE, -SIZE, -SIZE, // Right, bottom, back
+			//-SIZE, SIZE, -SIZE, // Left, top, back
+			//SIZE, SIZE, -SIZE, // Right, top, back
+
+			//-SIZE, -SIZE, SIZE, // Left, bottom, front
+			//SIZE, -SIZE, SIZE, // Right, bottom, front
+			//-SIZE, SIZE, SIZE, // Left, top, front
+			//SIZE, SIZE, SIZE, // Right, top, front
+		};
+
+		Model* cube = bufferModel(cubeData, 36);
+		m_models[cube->getID()] = cube;
 	}
 
 	Model* AssetManager::bufferModel(const std::vector<GLfloat> data, unsigned int vertexCount)
@@ -490,5 +636,15 @@ namespace AdventureEngine
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 
 		return vbo;
+	}
+
+	void AssetManager::freeImageOutputMessage(FREE_IMAGE_FORMAT fif, const char* message)
+	{
+		if (fif != FIF_UNKNOWN)
+		{
+			std::cout << "Format: " << FreeImage_GetFormatFromFIF(fif) << std::endl;
+		}
+		
+		std::cout << message << std::endl;
 	}
 }

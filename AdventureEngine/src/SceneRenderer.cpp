@@ -4,13 +4,8 @@
 
 namespace AdventureEngine
 {
-	SceneRenderer::SceneRenderer() : SceneRenderer(glm::vec3(0.8f, 0.8f, 0.8f))
+	SceneRenderer::SceneRenderer()
 	{
-	}
-
-	SceneRenderer::SceneRenderer(glm::vec3 fogColor)
-	{
-		m_fogColor = fogColor;
 	}
 
 	SceneRenderer::~SceneRenderer()
@@ -27,44 +22,48 @@ namespace AdventureEngine
 			return false;
 		}
 
-		// Sets the clear color to the fog color
-		glClearColor(m_fogColor.r, m_fogColor.g, m_fogColor.b, 1);
-
 		return true;
 	}
 
-	void SceneRenderer::render(const std::vector<Object*> objects, const std::vector<Object*> lights, const CameraComponent* mainCamera) const
+	void SceneRenderer::render(const std::vector<RenderComponent*> renderComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const glm::vec3 fogColor) const
+	{
+		render(renderComponent, lights, mainCamera, fogColor, glm::vec4());
+	}
+
+	void SceneRenderer::render(const std::vector<RenderComponent*> renderComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const glm::vec3 fogColor, glm::vec4 clipPlane) const
 	{
 		// Clears the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (unsigned int i = 0; i < objects.size(); i++)
+		for (unsigned int i = 0; i < renderComponent.size(); i++)
 		{
-			// Gets the object from the list
-			const Object* object = objects[i];
-
-			// Gets the render component for the object
-			const RenderComponent* renderComponent = objects[i]->getComponent<RenderComponent>();
-			if (!renderComponent) continue;
+			// Gets the render component from the list
+			const RenderComponent* renderable = renderComponent[i];
+			
+			// Gets the object from the render component
+			const Object* renderObject = renderable->getObject();
 
 			// Handles the shader
-			handleShader(renderComponent);
+			handleShader(renderable);
 
 			// Upload the fog color
-			glUniform3f(7, m_fogColor.r, m_fogColor.g, m_fogColor.b);
+			glUniform3f(7, fogColor.r, fogColor.g, fogColor.b);
 
 			// Uploads the UV scale for terrain tiling
-			glUniform2f(13, objects[i]->scale.x, objects[i]->scale.z);
+			glUniform2f(13, renderObject->scale.x, renderObject->scale.z);
+
+			// Uploads the clipping plane height for water
+			glUniform4f(14, clipPlane.x, clipPlane.y, clipPlane.z, clipPlane.w);
 
 			// Handles the materials
-			handleMaterials(renderComponent);
+			handleMaterials(renderable);
 
 			// Handles the lights
 			handleLights(lights);
 
 			// Handles the model
-			glm::mat4 modelMatrix = object->getModelMatrix();
-			handleModel(modelMatrix, renderComponent->model, mainCamera);
+			glm::mat4 modelMatrix = renderObject->getModelMatrix();
+			handleModel(modelMatrix, renderable->model, mainCamera);
 
 			// Cleans up the texture binds
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -134,7 +133,7 @@ namespace AdventureEngine
 		}
 	}
 
-	void SceneRenderer::handleLights(const std::vector<Object*> lights) const
+	void SceneRenderer::handleLights(const std::vector<LightComponent*> lights) const
 	{
 		// Uploads each light to the graphics card
 		for (unsigned int i = 0; i < lights.size(); i++)
@@ -142,32 +141,30 @@ namespace AdventureEngine
 			// Can't upload more than the maximum number of lights
 			if (i == MAX_LIGHTS) break;
 
-			const LightComponent* lightComponent = lights[i]->getComponent<LightComponent>();
-			if (lightComponent)
+			const LightComponent* light = lights[i];
+			const Object* lightObject = lights[i]->getObject();
+			
+			glm::vec3 forward = lightObject->getForward();
+			if (light->lightType == Light::DIRECTIONAL)
 			{
-				glm::vec3 forward = lights[i]->getForward();
-				if (lightComponent->lightType == Light::DIRECTIONAL)
-				{
+				glUniform4f(17 + i * 6, forward.x, forward.y, forward.z, 0);
+			}
+			else
+			{
+				glUniform4f(17 + i * 6, lightObject->position.x, lightObject->position.y, lightObject->position.z, 1);
+			}
 
-					glUniform4f(14 + i * 7, forward.x, forward.y, forward.z, 0);
-				}
-				else
-				{
-					glUniform4f(14 + i * 7, lights[i]->position.x, lights[i]->position.y, lights[i]->position.z, 1);
-				}
-
-				glUniform1f(15 + i * 7, lightComponent->intensity);
-				glUniform1f(16 + i * 7, lightComponent->radius);
-				glUniform3f(17 + i * 7, lightComponent->color.x, lightComponent->color.y, lightComponent->color.z);
-				glUniform3f(18 + i * 7, forward.x, forward.y, forward.z);
-				if (lightComponent->lightType == Light::CONE)
-				{
-					glUniform1f(19 + i * 7, lightComponent->coneAngle);
-				}
-				else
-				{
-					glUniform1f(19 + i * 7, 180);
-				}
+			glUniform1f(18 + i * 6, light->intensity);
+			glUniform1f(19 + i * 6, light->radius);
+			glUniform3f(20 + i * 6, light->color.x, light->color.y, light->color.z);
+			glUniform3f(21 + i * 6, forward.x, forward.y, forward.z);
+			if (light->lightType == Light::CONE)
+			{
+				glUniform1f(22 + i * 6, light->coneAngle);
+			}
+			else
+			{
+				glUniform1f(22 + i * 6, 180);
 			}
 		}
 	}

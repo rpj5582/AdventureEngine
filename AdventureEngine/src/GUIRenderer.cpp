@@ -22,19 +22,18 @@ namespace AdventureEngine
 			return false;
 		}
 
-		m_quad = AssetManager::loadModel("guiQuad");
+		m_quad = AssetManager::getModelPrimitive(ModelPrimitive::GUIQUAD);
 		return true;
 	}
 
-	void GUIRenderer::render(const std::vector<Object*> guiObjects) const
+	void GUIRenderer::render(const std::vector<GUIComponent*> guiComponents) const
 	{
 		glDisable(GL_DEPTH_TEST);
 
-		for (unsigned int i = 0; i < guiObjects.size(); i++)
+		for (unsigned int i = 0; i < guiComponents.size(); i++)
 		{
-			Object* guiObject = guiObjects[i];
-			GUIComponent* guiComponent = guiObject->getComponent<GUIComponent>();
-			if (!guiComponent) continue;
+			GUIComponent* guiComponent = guiComponents[i];
+			Object* guiObject = guiComponent->getObject();
 
 			handleShaders(guiComponent);
 			handleTextures(guiComponent);

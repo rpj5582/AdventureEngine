@@ -4,21 +4,22 @@
 
 namespace AdventureEngine
 {
-	CameraComponent::CameraComponent(float* aspectRatio) : CameraComponent(aspectRatio, 60.0f)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight) : CameraComponent(windowWidth, windowHeight, 60.0f)
 	{
 	}
 
-	CameraComponent::CameraComponent(float* aspectRatio, float perspectiveFOV) : CameraComponent(aspectRatio, perspectiveFOV, 5, 100, true)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float perspectiveFOV) : CameraComponent(windowWidth, windowHeight, perspectiveFOV, 5, 100, true)
 	{
 	}
 
-	CameraComponent::CameraComponent(float* aspectRatio, int orthoSize, int maxZ) : CameraComponent(aspectRatio, 60.0f, orthoSize, maxZ, false)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, int orthoSize, int maxZ) : CameraComponent(windowWidth, windowHeight, 60.0f, orthoSize, maxZ, false)
 	{
 	}
 
-	CameraComponent::CameraComponent(float* aspectRatio, float perspectiveFOV, int orthoSize, int maxZ, bool usePerspective)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float perspectiveFOV, int orthoSize, int maxZ, bool usePerspective)
 	{
-		m_aspectRatio = aspectRatio;
+		m_windowWidth = windowWidth;
+		m_windowHeight = windowHeight;
 		m_fov = perspectiveFOV;
 		m_orthoSize = orthoSize;
 		m_maxZ = maxZ;
@@ -41,7 +42,7 @@ namespace AdventureEngine
 	glm::mat4 CameraComponent::getProjectionMatrix() const
 	{
 		// Dereferences the aspect ratio pointer to get its value
-		float aspectRatio = *m_aspectRatio;
+		float aspectRatio = *m_windowWidth / (float)*m_windowHeight;
 
 		// projection matrix
 		glm::mat4 projectionMatrix;

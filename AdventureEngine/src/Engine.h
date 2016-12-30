@@ -2,6 +2,8 @@
 
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
+#include <al.h>
+#include <alc.h>
 
 #include "Input.h"
 #include "TestScene.h"
@@ -19,8 +21,13 @@ namespace AdventureEngine
 		void quit();
 
 	private:
+		static Engine* m_instance;
+
+		static void glfwErrorCallback(int error, const char* description);
+
 		void gameLoop();
 
+		static void windowResizeCallback(GLFWwindow* window, int windowWidth, int windowHeight);
 		GLFWwindow* m_window;
 		int m_windowWidth;
 		int m_windowHeight;

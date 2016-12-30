@@ -14,7 +14,7 @@ namespace AdventureEngine
 		~GUIRenderer();
 
 		virtual bool load() override;
-		void render(const std::vector<Object*> guiObjects) const;
+		void render(const std::vector<GUIComponent*> guiComponents) const;
 
 	private:
 		void handleShaders(const GUIComponent* guiComponent) const;

@@ -6,29 +6,17 @@
 
 namespace AdventureEngine
 {
-	static float aspectRatio = 0;
-
-	static void glfwErrorCallback(int error, const char* description)
-	{
-		std::cout << "GLFW FATAL ERROR " << error << ": " << description << std::endl;
-	}
-
-	static void glfwWindowResizeCallback(GLFWwindow* window, int windowWidth, int windowHeight)
-	{
-		aspectRatio = windowWidth / (float)windowHeight;
-		glViewport(0, 0, windowWidth, windowHeight);
-		std::cout << "Window resized to " << windowWidth << "x" << windowHeight << std::endl;
-	}
+	Engine* Engine::m_instance = nullptr;
 
 	Engine::Engine() : Engine(1280, 720)
 	{
+		m_instance = this;
 	}
 
 	Engine::Engine(int windowWidth, int windowHeight)
 	{
 		m_windowWidth = windowWidth;
 		m_windowHeight = windowHeight;
-		aspectRatio = windowWidth / (float)windowHeight;
 
 		m_scene = nullptr;
 	}
@@ -43,7 +31,7 @@ namespace AdventureEngine
 		std::cout << "Starting the engine..." << std::endl;
 
 		// Sets the error function
-		glfwSetErrorCallback(glfwErrorCallback);
+		glfwSetErrorCallback(Engine::glfwErrorCallback);
 
 		// Initializes the GLFW library
 		if (glfwInit() == GLFW_FALSE) return;
@@ -70,7 +58,20 @@ namespace AdventureEngine
 			return;
 		}
 
-		glfwSetWindowSizeCallback(m_window, glfwWindowResizeCallback);
+		ALCcontext* ctx = nullptr;
+		ALCdevice* dev = alcOpenDevice(nullptr);
+		if (dev)
+		{
+			ctx = alcCreateContext(dev, nullptr);
+			alcMakeContextCurrent(ctx);
+		}
+		else
+		{
+			std::cout << "Failed to initialize OpenAL." << std::endl;
+			return;
+		}
+
+		glfwSetWindowSizeCallback(m_window, Engine::windowResizeCallback);
 		glfwSetKeyCallback(m_window, Input::keyCallback);
 		glfwSetMouseButtonCallback(m_window, Input::mouseClickCallback);
 		glfwSetCursorPosCallback(m_window, Input::mouseMoveCallback);
@@ -82,15 +83,15 @@ namespace AdventureEngine
 		glEnable(GL_DEPTH_TEST);
 
 		// Enables transparency
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		//glEnable(GL_ALPHA_TEST);
 		//glAlphaFunc(GL_GREATER, 0.5f);
 
 		std::cout << "Engine started." << std::endl;
 
-		m_scene = new TestScene(&aspectRatio);
+		m_scene = new TestScene(&m_windowWidth, &m_windowHeight);
 
 		// Loads the first scene
 		if (!m_scene->load())
@@ -101,6 +102,11 @@ namespace AdventureEngine
 		// Starts the game loop
 		gameLoop();
 
+		// Destroys the OpenAL library
+		alcMakeContextCurrent(nullptr);
+		alcDestroyContext(ctx);
+		alcCloseDevice(dev);
+
 		// Destroys the window and terminates the GLFW library
 		glfwDestroyWindow(m_window);
 		glfwTerminate();
@@ -110,6 +116,11 @@ namespace AdventureEngine
 	{
 		// Closes the game next update call
 		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+	}
+
+	void Engine::glfwErrorCallback(int error, const char* description)
+	{
+		std::cout << "GLFW FATAL ERROR " << error << ": " << description << std::endl;
 	}
 
 	void Engine::gameLoop()
@@ -146,5 +157,12 @@ namespace AdventureEngine
 			m_frameTimer += m_deltaTime;
 			m_frameCount++;
 		}
+	}
+
+	void Engine::windowResizeCallback(GLFWwindow* window, int windowWidth, int windowHeight)
+	{
+		m_instance->m_windowWidth = windowWidth;
+		m_instance->m_windowHeight = windowHeight;
+		glViewport(0, 0, windowWidth, windowHeight);
 	}
 }
