@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AudioBuffer.cpp" />
+    <ClCompile Include="src\AudioManager.cpp" />
+    <ClCompile Include="src\AudioSourceComponent.cpp" />
     <ClCompile Include="src\GUIComponent.cpp" />
     <ClCompile Include="src\GUIRenderer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -45,6 +48,9 @@
     <ClCompile Include="src\WaterRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AudioBuffer.h" />
+    <ClInclude Include="src\AudioManager.h" />
+    <ClInclude Include="src\AudioSourceComponent.h" />
     <ClInclude Include="src\GUIComponent.h" />
     <ClInclude Include="src\GUIRenderer.h" />
     <ClInclude Include="src\Renderer.h" />

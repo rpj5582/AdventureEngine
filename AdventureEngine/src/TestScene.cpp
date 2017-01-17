@@ -1,5 +1,7 @@
 #include "TestScene.h"
 
+#include "AudioManager.h"
+
 TestScene::TestScene(const int* windowWidth, const int* windowHeight) : Scene(windowWidth, windowHeight)
 {
 }
@@ -21,6 +23,13 @@ bool TestScene::load()
 		std::cout << "Failed to load terrain shader program." << std::endl;
 		return false;
 	}
+
+
+	AudioBuffer* sound = AudioManager::loadWAVFile("bounce.wav");
+
+
+
+
 	
 	Texture* heightMap = AssetManager::loadTexture("terrainHeightMapPool.png");
 	Model* terrainModel = AssetManager::genTerrainModel(heightMap);
@@ -62,6 +71,7 @@ bool TestScene::load()
 	addObject(stall);
 
 	Object* water = new Object("water", glm::vec3(0, -0.5f, 0), glm::vec3(0, 0, 0), glm::vec3(10, 1, 10));
+	//AudioSourceComponent* waterSound = water->addComponent<AudioSourceComponent>(sound);
 	setWater(water->addComponent<WaterComponent>(AssetManager::loadTexture("water_dudv.jpg"), AssetManager::loadTexture("water_normalmap.jpg"), 1.0f, 40.0f));
 	addObject(water);
 
@@ -97,6 +107,9 @@ bool TestScene::load()
 	Object* refractionGUI = new Object("Refraction Preview", glm::vec3(0.7f, -0.8f, 0), glm::vec3(), glm::vec3(guiSize, guiSize * (*windowWidth / *windowHeight), 1));
 	addGUI(refractionGUI->addComponent<GUIComponent>(waterRefractionTexture));
 	addObject(refractionGUI);
+
+	//waterSound->shouldLoop(AL_TRUE);
+	//waterSound->play();
 
 	return true;
 }

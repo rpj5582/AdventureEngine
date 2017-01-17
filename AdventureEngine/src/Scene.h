@@ -3,11 +3,14 @@
 #include <iostream>
 
 #include "AssetManager.h"
+#include "AudioManager.h"
 
 #include "SceneRenderer.h"
 #include "WaterRenderer.h"
 #include "SkyboxRenderer.h"
 #include "GUIRenderer.h"
+
+#include "AudioSourceComponent.h"
 
 namespace AdventureEngine
 {

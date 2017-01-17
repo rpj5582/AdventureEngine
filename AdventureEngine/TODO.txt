@@ -2,12 +2,12 @@ IDEAS:
 -Shadows
 -Deferred rendering
 -Day and night cycle
--Audio
+-Physics
 
 BUSY WORK:
+-Add mouse movement in the input class
 -Make Shader class a resource
 -Separate Texture class into Texture, Cubemap, and Texture Atlas
--Make classes final?
 -Upload fog density and gradient as uniforms
 -Upload camera near and far planes as uniforms
 -Separate AssetManager into multiple asset managers, and have one master AssetManager that controls them all
@@ -16,4 +16,5 @@ BUGS:
 -Alpha blending is bugged
 
 OPTIMIZATIONS:
--Draw objects that use the same textures and models in order
+-Draw objects that use the same textures and models in order (Order object lists to maximize efficiency)
+-Use object and component arrays for iteration rather than arrays of pointers for cache optimization

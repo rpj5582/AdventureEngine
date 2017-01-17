@@ -33,6 +33,7 @@ namespace AdventureEngine
 		delete m_skyboxRenderer;
 		delete m_guiRenderer;
 
+		AudioManager::clean();
 		AssetManager::clean();
 	}
 
@@ -74,6 +75,7 @@ namespace AdventureEngine
 	bool Scene::load()
 	{
 		AssetManager::init();
+		AudioManager::init();
 
 		m_sceneRenderer = new SceneRenderer();
 		if (!m_sceneRenderer->load())
@@ -111,6 +113,14 @@ namespace AdventureEngine
 		{
 			m_objects[i]->update(deltaTime);
 		}
+
+		Object* mainCameraObject = m_mainCamera->getObject();
+		glm::vec3 forward = mainCameraObject->getForward();
+		glm::vec3 up = mainCameraObject->getUp();
+		ALfloat orientation[] = { forward.x, forward.y, forward.z, up.x, up.y, up.z };
+
+		alListener3f(AL_POSITION, mainCameraObject->position.x, mainCameraObject->position.y, mainCameraObject->position.z);
+		alListenerfv(AL_ORIENTATION, orientation);
 	}
 
 	void Scene::render() const
