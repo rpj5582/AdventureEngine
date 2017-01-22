@@ -9,13 +9,13 @@ namespace AdventureEngine
 	{
 	public:
 		GUIComponent();
-		GUIComponent(const Texture* texture);
-		GUIComponent(const Texture* texture, const Shader* shader);
-		GUIComponent(std::vector<const Texture*> textures);
-		GUIComponent(std::vector<const Texture*> textures, const Shader* shader);
+		GUIComponent(const Material* material);
+		GUIComponent(const Material* material, const Shader* shader);
+		GUIComponent(std::vector<const Material*> materials);
+		GUIComponent(std::vector<const Material*> materials, const Shader* shader);
 		~GUIComponent();
 
-		std::vector<const Texture*> textures;
+		std::vector<const Material*> materials;
 		const Shader* shader;
 
 	private:

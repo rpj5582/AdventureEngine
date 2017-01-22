@@ -4,22 +4,24 @@
 
 namespace AdventureEngine
 {
-	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight) : CameraComponent(windowWidth, windowHeight, 60.0f)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float nearPlane, float farPlane) : CameraComponent(windowWidth, windowHeight, nearPlane, farPlane, 60.0f)
 	{
 	}
 
-	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float perspectiveFOV) : CameraComponent(windowWidth, windowHeight, perspectiveFOV, 5, 100, true)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float nearPlane, float farPlane, float perspectiveFOV) : CameraComponent(windowWidth, windowHeight, nearPlane, farPlane, perspectiveFOV, 5, 100, true)
 	{
 	}
 
-	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, int orthoSize, int maxZ) : CameraComponent(windowWidth, windowHeight, 60.0f, orthoSize, maxZ, false)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float nearPlane, float farPlane, int orthoSize, int maxZ) : CameraComponent(windowWidth, windowHeight, nearPlane, farPlane, 60.0f, orthoSize, maxZ, false)
 	{
 	}
 
-	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float perspectiveFOV, int orthoSize, int maxZ, bool usePerspective)
+	CameraComponent::CameraComponent(const int* windowWidth, const int* windowHeight, float nearPlane, float farPlane, float perspectiveFOV, int orthoSize, int maxZ, bool usePerspective)
 	{
 		m_windowWidth = windowWidth;
 		m_windowHeight = windowHeight;
+		m_nearPlane = nearPlane;
+		m_farPlane = farPlane;
 		m_fov = perspectiveFOV;
 		m_orthoSize = orthoSize;
 		m_maxZ = maxZ;
@@ -28,7 +30,16 @@ namespace AdventureEngine
 
 	CameraComponent::~CameraComponent()
 	{
-		
+	}
+
+	float CameraComponent::getNearPlane() const
+	{
+		return m_nearPlane;
+	}
+
+	float CameraComponent::getFarPlane() const
+	{
+		return m_farPlane;
 	}
 
 	void CameraComponent::init()
@@ -48,7 +59,7 @@ namespace AdventureEngine
 		glm::mat4 projectionMatrix;
 		if (m_usePerspective)
 		{
-			projectionMatrix = glm::perspective(glm::radians(m_fov), aspectRatio, 0.1f, 1000.0f);
+			projectionMatrix = glm::perspective(glm::radians(m_fov), aspectRatio, m_nearPlane, m_farPlane);
 		}
 		else
 		{

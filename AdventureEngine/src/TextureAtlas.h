@@ -4,11 +4,9 @@
 #include <glm\glm.hpp>
 #include <FreeImage.h>
 
-#include <vector>
-
 namespace AdventureEngine
 {
-	class Texture
+	class TextureAtlas
 	{
 	public:
 		friend class AssetManager;
@@ -22,12 +20,15 @@ namespace AdventureEngine
 		unsigned int getWidth() const;
 		unsigned int getHeight() const;
 
+		glm::uvec2 getAtlasSize() const;
+
 	private:
-		Texture(GLuint id, FIBITMAP* imageData);
-		~Texture();
+		TextureAtlas(GLuint id, FIBITMAP* imageData, glm::uvec2 atlasSize);
+		~TextureAtlas();
 
 		GLuint m_id;
 		FIBITMAP* m_imageData;
+
+		glm::uvec2 m_atlasSize;
 	};
 }
-

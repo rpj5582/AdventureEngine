@@ -1,5 +1,7 @@
 #include "TestComponent.h"
 
+#include <iostream>
+
 TestComponent::TestComponent()
 {
 }

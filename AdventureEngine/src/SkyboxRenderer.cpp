@@ -15,10 +15,10 @@ namespace AdventureEngine
 
 	bool SkyboxRenderer::load()
 	{
-		m_skyboxModel = AssetManager::getModelPrimitive(ModelPrimitive::CUBE);
+		m_skyboxModel = AssetManager::getModelPrimitive(ModelPrimitive::SKYBOX);
 
-		m_defaultShader = new Shader("skyboxVertexShader.glsl", "skyboxFragmentShader.glsl");
-		if (!m_defaultShader->load())
+		m_defaultShader = AssetManager::loadShaderProgram("skyboxVertexShader.glsl", "skyboxFragmentShader.glsl");
+		if (!m_defaultShader)
 		{
 			std::cout << "Failed to load default shader for skybox renderer" << std::endl;
 			return false;
@@ -27,7 +27,7 @@ namespace AdventureEngine
 		return true;
 	}
 
-	void SkyboxRenderer::render(const SkyboxComponent* skybox, const CameraComponent* mainCamera, const glm::vec3 fogColor) const
+	void SkyboxRenderer::render(const SkyboxComponent* skybox, const CameraComponent* mainCamera, const FogComponent* fog) const
 	{
 		// Saves the cull face mode and depth function
 		GLint cullFaceMode;
@@ -43,8 +43,32 @@ namespace AdventureEngine
 
 		handleShader(skybox);
 
-		// Uploads the fog color
-		glUniform3f(7, fogColor.r, fogColor.g, fogColor.b);
+		// Upload the camera's near and far planes
+		glUniform1f(3, mainCamera->getNearPlane());
+		glUniform1f(4, mainCamera->getFarPlane());
+
+		if (fog)
+		{
+			// Upload the fog color
+			glm::vec3 fogColor = fog->getColor();
+			glUniform3f(9, fogColor.r, fogColor.g, fogColor.b);
+
+			// Uploads the fog density and gradient
+			glUniform1f(10, fog->getDensity());
+			glUniform1f(11, fog->getGradient());
+
+			// Uploads the starting and ending points for the skybox fog
+			glUniform1f(12, fog->getSkyboxGradientStart());
+			glUniform1f(13, fog->getSkyboxGradientEnd());
+		}
+		else
+		{
+			glUniform3f(9, 1, 1, 1);
+			glUniform1f(10, 0);
+			glUniform1f(11, 1);
+			glUniform1f(12, 0);
+			glUniform1f(13, 0);
+		}
 
 		handleCubeMapTexture(skybox);
 		handleModel(mainCamera);
@@ -68,7 +92,7 @@ namespace AdventureEngine
 
 	void SkyboxRenderer::handleCubeMapTexture(const SkyboxComponent* skybox) const
 	{
-		glUniform1i(8, 0);
+		glUniform1i(14, 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture->getID());
 	}

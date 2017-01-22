@@ -18,7 +18,7 @@ namespace AdventureEngine
 
 	private:
 		void handleShaders(const GUIComponent* guiComponent) const;
-		void handleTextures(const GUIComponent* guiComponent) const;
+		void handleMaterials(const GUIComponent* guiComponent) const;
 		void handleQuad(const glm::mat4 modelMatrix) const;
 
 		const Model* m_quad;

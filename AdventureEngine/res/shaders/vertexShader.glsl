@@ -11,11 +11,15 @@ layout (location = 1) uniform mat4 viewMatrix;
 layout (location = 2) uniform mat4 projectionMatrix;
 
 // Texture atlas data
-layout (location = 3) uniform uvec2 atlasSize;
-layout (location = 4) uniform vec2 atlasOffset;
+layout (location = 5) uniform uvec2 atlasSize;
+layout (location = 6) uniform vec2 atlasOffset;
+
+// Fog density and gradient
+layout (location = 10) uniform float fogDensity;
+layout (location = 11) uniform float fogGradient;
 
 // Height of the horizontal clip plane
-layout (location = 14) uniform vec4 clipPlane;
+layout (location = 20) uniform vec4 clipPlane;
 
 out vec3 position;
 out vec2 uv;
@@ -24,10 +28,6 @@ out vec3 normal;
 out vec3 cameraPosition;
 
 out float visibility;
-
-// Fog constants
-const float density = 0.005f;
-const float gradient = 1.0f;
 
 void main()
 {
@@ -51,5 +51,5 @@ void main()
 
 	// Calculates the visibility factor for fog
 	float distance = length(positionCameraSpace.xyz);
-	visibility = exp(-pow(distance * density, gradient));
+	visibility = exp(-pow(distance * fogDensity, fogGradient));
 }

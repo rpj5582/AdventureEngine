@@ -10,12 +10,11 @@ namespace AdventureEngine
 	public:
 		friend class AudioManager;
 
-		~AudioBuffer();
-
 		ALuint getBufferID() const;
 
 	private:
 		AudioBuffer(ALuint bufferID);
+		~AudioBuffer();
 
 		ALuint m_bufferID;
 	};

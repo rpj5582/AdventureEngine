@@ -1,0 +1,20 @@
+0: Model Matrix
+1: View Matrix
+2: Projection Matrix
+3: Camera Near Plane
+4: Camera Far Plane
+5: Texture Atlas Size
+6: Texture Atlas Offset
+7: Reflectivity
+8: Specular Damping
+9: Fog Color
+10: Fog Density
+11: Fog Gradient
+12: Fog Skybox Gradient Start Point
+13: Fog Skybox Gradient End Point
+14-18: Textures 
+19: UV Scale (for tiling UVs)
+20: Horizontal clip plane (for water)
+21: Water Color
+22: Wave Movement
+23+: Lights

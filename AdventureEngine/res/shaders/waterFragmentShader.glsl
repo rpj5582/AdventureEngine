@@ -21,36 +21,37 @@ in vec3 cameraPosition;
 // Fog visibility (from 0 to 1)
 in float visibility;
 
+// Camera near and far planes
+layout (location = 3) uniform float near;
+layout (location = 4) uniform float far;
+
 // Material properties
-layout (location = 5) uniform float reflectivity;
-layout (location = 6) uniform float specularDamping;
+layout (location = 7) uniform float reflectivity;
+layout (location = 8) uniform float specularDamping;
 
 // Fog color
-layout (location = 7) uniform vec3 fogColor;
+layout (location = 9) uniform vec3 fogColor;
 
 // Texture uniforms
-layout (location = 8) uniform sampler2D reflectionTexture;
-layout (location = 9) uniform sampler2D refractionTexture;
-layout (location = 10) uniform sampler2D depthMap;
-layout (location = 11) uniform sampler2D dudvMap;
-layout (location = 12) uniform sampler2D normalMap;
+layout (location = 14) uniform sampler2D reflectionTexture;
+layout (location = 15) uniform sampler2D refractionTexture;
+layout (location = 16) uniform sampler2D depthMap;
+layout (location = 17) uniform sampler2D dudvMap;
+layout (location = 18) uniform sampler2D normalMap;
 
 // The color of the water
-layout (location = 15) uniform vec4 waterColor;
+layout (location = 21) uniform vec4 waterColor;
 
 // How much the water's waves should be offset
-layout (location = 16) uniform float waveMovement;
+layout (location = 22) uniform float waveMovement;
 
 // Lights
-layout (location = 17) uniform Light lights[16];
+layout (location = 23) uniform Light lights[16];
 
 // Output color
 layout(location = 0) out vec4 finalFragColor;
 
 const float waveStrength = 0.005f;
-
-const float near = 0.1f;
-const float far = 100.0f;
 
 vec3 calculateSpecularLighting(Light light, vec4 color, vec3 normal, float waterDepth)
 {

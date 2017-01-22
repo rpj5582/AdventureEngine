@@ -1,8 +1,6 @@
 #pragma once
 #include "Component.h"
 
-#include "Shader.h"
-
 namespace AdventureEngine
 {
 	class RenderComponent : public Component

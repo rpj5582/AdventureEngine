@@ -3,8 +3,7 @@
 
 #include "SkyboxComponent.h"
 #include "CameraComponent.h"
-
-#include "AssetManager.h"
+#include "FogComponent.h"
 
 namespace AdventureEngine
 {
@@ -15,7 +14,7 @@ namespace AdventureEngine
 		~SkyboxRenderer();
 
 		virtual bool load() override;
-		void render(const SkyboxComponent* skybox, const CameraComponent* mainCamera, const glm::vec3 fogColor) const;
+		void render(const SkyboxComponent* skybox, const CameraComponent* mainCamera, const FogComponent* fog) const;
 
 	private:
 		void handleShader(const SkyboxComponent* skybox) const;

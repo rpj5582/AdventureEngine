@@ -4,6 +4,7 @@
 #include "WaterComponent.h"
 #include "CameraComponent.h"
 #include "LightComponent.h"
+#include "FogComponent.h"
 
 #define REFLECTION_WIDTH 1280
 #define REFLECTION_HEIGHT 720
@@ -27,7 +28,7 @@ namespace AdventureEngine
 		Texture* getRefractionTexture() const;
 
 		virtual bool load() override;
-		void render(const WaterComponent* waterComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const glm::vec3 fogColor) const;
+		void render(const WaterComponent* waterComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const FogComponent* fog) const;
 
 	private:
 		GLuint createReflectionFBO();

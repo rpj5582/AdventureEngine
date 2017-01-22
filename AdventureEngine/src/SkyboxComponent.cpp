@@ -6,12 +6,12 @@ namespace AdventureEngine
 	{
 	}
 
-	SkyboxComponent::SkyboxComponent(Texture* cubeMapTexture) : SkyboxComponent(cubeMapTexture, nullptr)
+	SkyboxComponent::SkyboxComponent(Cubemap* cubeMapTexture) : SkyboxComponent(cubeMapTexture, nullptr)
 	{
 		
 	}
 
-	SkyboxComponent::SkyboxComponent(Texture* cubeMapTexture, const Shader* shader)
+	SkyboxComponent::SkyboxComponent(Cubemap* cubeMapTexture, const Shader* shader)
 	{
 		this->cubeMapTexture = cubeMapTexture;
 		this->shader = shader;

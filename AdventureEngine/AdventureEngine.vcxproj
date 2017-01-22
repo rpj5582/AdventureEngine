@@ -20,8 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AudioBuffer.cpp" />
+    <ClCompile Include="src\AudioListenerComponent.cpp" />
     <ClCompile Include="src\AudioManager.cpp" />
     <ClCompile Include="src\AudioSourceComponent.cpp" />
+    <ClCompile Include="src\AABBColliderComponent.cpp" />
+    <ClCompile Include="src\Cubemap.cpp" />
+    <ClCompile Include="src\FogComponent.cpp" />
     <ClCompile Include="src\GUIComponent.cpp" />
     <ClCompile Include="src\GUIRenderer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -44,13 +48,18 @@
     <ClCompile Include="src\TestComponent.cpp" />
     <ClCompile Include="src\TestScene.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\TextureAtlas.cpp" />
     <ClCompile Include="src\WaterComponent.cpp" />
     <ClCompile Include="src\WaterRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AudioBuffer.h" />
+    <ClInclude Include="src\AudioListenerComponent.h" />
     <ClInclude Include="src\AudioManager.h" />
     <ClInclude Include="src\AudioSourceComponent.h" />
+    <ClInclude Include="src\AABBColliderComponent.h" />
+    <ClInclude Include="src\Cubemap.h" />
+    <ClInclude Include="src\FogComponent.h" />
     <ClInclude Include="src\GUIComponent.h" />
     <ClInclude Include="src\GUIRenderer.h" />
     <ClInclude Include="src\Renderer.h" />
@@ -72,6 +81,7 @@
     <ClInclude Include="src\TestComponent.h" />
     <ClInclude Include="src\TestScene.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\TextureAtlas.h" />
     <ClInclude Include="src\WaterComponent.h" />
     <ClInclude Include="src\WaterRenderer.h" />
   </ItemGroup>

@@ -6,21 +6,21 @@ namespace AdventureEngine
 	{
 	}
 
-	GUIComponent::GUIComponent(const Texture* texture) : GUIComponent(texture, nullptr)
+	GUIComponent::GUIComponent(const Material* material) : GUIComponent(material, nullptr)
 	{
 	}
 
-	GUIComponent::GUIComponent(const Texture* texture, const Shader* shader) : GUIComponent(std::vector<const Texture*> { texture }, shader)
+	GUIComponent::GUIComponent(const Material* material, const Shader* shader) : GUIComponent(std::vector<const Material*> { material }, shader)
 	{
 	}
 
-	GUIComponent::GUIComponent(std::vector<const Texture*> textures) : GUIComponent(textures, nullptr)
+	GUIComponent::GUIComponent(std::vector<const Material*> materials) : GUIComponent(materials, nullptr)
 	{
 	}
 
-	GUIComponent::GUIComponent(std::vector<const Texture*> textures, const Shader* shader)
+	GUIComponent::GUIComponent(std::vector<const Material*> materials, const Shader* shader)
 	{
-		this->textures = textures;
+		this->materials = materials;
 		this->shader = shader;
 	}
 

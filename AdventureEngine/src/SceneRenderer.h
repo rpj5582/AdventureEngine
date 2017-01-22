@@ -4,6 +4,7 @@
 #include "RenderComponent.h"
 #include "CameraComponent.h"
 #include "LightComponent.h"
+#include "FogComponent.h"
 
 #include <GL\glew.h>
 
@@ -16,8 +17,8 @@ namespace AdventureEngine
 		~SceneRenderer();
 
 		virtual bool load() override;
-		void render(const std::vector<RenderComponent*> renderComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const glm::vec3 fogColor) const;
-		void render(const std::vector<RenderComponent*> renderComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const glm::vec3 fogColor, glm::vec4 clipPlane) const;
+		void render(const std::vector<RenderComponent*> renderComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const FogComponent* fog) const;
+		void render(const std::vector<RenderComponent*> renderComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const FogComponent* fog, glm::vec4 clipPlane) const;
 
 	private:
 		void handleShader(const RenderComponent* renderComponent) const;

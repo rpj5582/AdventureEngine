@@ -4,16 +4,17 @@
 in vec3 uv;
 
 // Fog color
-layout (location = 7) uniform vec3 fogColor;
+layout (location = 9) uniform vec3 fogColor;
+
+// Fog gradient start and end points
+layout (location = 12) uniform float lowerFogGradient;
+layout (location = 13) uniform float upperFogGradient;
 
 // Texture uniform
-layout (location = 8) uniform samplerCube cubeMap;
+layout (location = 14) uniform samplerCube cubeMap;
 
 // Output color
 layout(location = 0) out vec4 finalFragColor;
-
-const float lowerFogGradient = 0;
-const float upperFogGradient = 0.25f;
 
 void main()
 {

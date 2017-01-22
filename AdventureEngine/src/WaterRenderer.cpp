@@ -55,8 +55,8 @@ namespace AdventureEngine
 		m_reflectionFBO = createReflectionFBO();
 		m_refractionFBO = createRefractionFBO();
 
-		m_defaultShader = new Shader("waterVertexShader.glsl", "waterFragmentShader.glsl");
-		if (!m_defaultShader->load())
+		m_defaultShader = AssetManager::loadShaderProgram("waterVertexShader.glsl", "waterFragmentShader.glsl");
+		if (!m_defaultShader)
 		{
 			std::cout << "Failed to load default shader for the water renderer" << std::endl;
 			return false;
@@ -64,18 +64,36 @@ namespace AdventureEngine
 		return true;
 	}
 
-	void WaterRenderer::render(const WaterComponent* waterComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const glm::vec3 fogColor) const
+	void WaterRenderer::render(const WaterComponent* waterComponent, const std::vector<LightComponent*> lights, const CameraComponent* mainCamera, const FogComponent* fog) const
 	{
 		const Object* waterObject = waterComponent->getObject();
 
 		handleShaders(waterComponent);
 
-		// Uploads the fog color
-		glUniform3f(7, fogColor.r, fogColor.g, fogColor.b);
+		// Upload the camera's near and far planes
+		glUniform1f(3, mainCamera->getNearPlane());
+		glUniform1f(4, mainCamera->getFarPlane());
+
+		if (fog)
+		{
+			// Upload the fog color
+			glm::vec3 fogColor = fog->getColor();
+			glUniform3f(9, fogColor.r, fogColor.g, fogColor.b);
+
+			// Uploads the fog density and gradient
+			glUniform1f(10, fog->getDensity());
+			glUniform1f(11, fog->getGradient());
+		}
+		else
+		{
+			glUniform3f(9, 1, 1, 1);
+			glUniform1f(10, 0);
+			glUniform1f(11, 1);
+		}
 
 		// Uploads the water color and wave movement
-		glUniform4f(15, waterComponent->color.r, waterComponent->color.g, waterComponent->color.b, waterComponent->color.a);
-		glUniform1f(16, waterComponent->waveMovement);
+		glUniform4f(21, waterComponent->color.r, waterComponent->color.g, waterComponent->color.b, waterComponent->color.a);
+		glUniform1f(22, waterComponent->waveMovement);
 
 		handleMaterials(waterComponent);
 		handleLights(lights);
@@ -188,13 +206,13 @@ namespace AdventureEngine
 	void WaterRenderer::handleMaterials(const WaterComponent* waterComponent) const
 	{
 		// Uploads the reflectivity
-		glUniform1f(5, waterComponent->reflectivity);
+		glUniform1f(7, waterComponent->reflectivity);
 
 		// Uploads the specular damping
-		glUniform1f(6, waterComponent->specularDamping);
+		glUniform1f(8, waterComponent->specularDamping);
 
 		// Uploads the reflection texture unit
-		glUniform1i(8, 0);
+		glUniform1i(14, 0);
 
 		// Activates and binds the reflection texture
 		glActiveTexture(GL_TEXTURE0);
@@ -202,14 +220,14 @@ namespace AdventureEngine
 
 
 		// Uploads the refraction texture unit
-		glUniform1i(9, 1);
+		glUniform1i(15, 1);
 
 		// Activates and binds the refraction texture
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, m_refractionTexture->getID());
 
 		// Uploads the refraction depth texture unit
-		glUniform1i(10, 2);
+		glUniform1i(16, 2);
 
 		// Activates and binds the refraction depth texture
 		glActiveTexture(GL_TEXTURE2);
@@ -218,7 +236,7 @@ namespace AdventureEngine
 		if (waterComponent->dudvMap)
 		{
 			// Uploads the dudv map texture unit
-			glUniform1i(11, 3);
+			glUniform1i(17, 3);
 
 			// Activates and binds the dudv map
 			glActiveTexture(GL_TEXTURE3);
@@ -228,7 +246,7 @@ namespace AdventureEngine
 		if (waterComponent->normalMap)
 		{
 			// Uploads the normal map texture unit
-			glUniform1i(12, 4);
+			glUniform1i(18, 4);
 
 			// Activates and binds the normal map
 			glActiveTexture(GL_TEXTURE4);
@@ -250,24 +268,24 @@ namespace AdventureEngine
 			glm::vec3 forward = lightObject->getForward();
 			if (light->lightType == Light::DIRECTIONAL)
 			{
-				glUniform4f(17 + i * 6, forward.x, forward.y, forward.z, 0);
+				glUniform4f(23 + i * 6, forward.x, forward.y, forward.z, 0);
 			}
 			else
 			{
-				glUniform4f(17 + i * 6, lightObject->position.x, lightObject->position.y, lightObject->position.z, 1);
+				glUniform4f(23 + i * 6, lightObject->position.x, lightObject->position.y, lightObject->position.z, 1);
 			}
 
-			glUniform1f(18 + i * 6, light->intensity);
-			glUniform1f(19 + i * 6, light->radius);
-			glUniform3f(20 + i * 6, light->color.x, light->color.y, light->color.z);
-			glUniform3f(21 + i * 6, forward.x, forward.y, forward.z);
+			glUniform1f(24 + i * 6, light->intensity);
+			glUniform1f(25 + i * 6, light->radius);
+			glUniform3f(26 + i * 6, light->color.x, light->color.y, light->color.z);
+			glUniform3f(27 + i * 6, forward.x, forward.y, forward.z);
 			if (light->lightType == Light::CONE)
 			{
-				glUniform1f(22 + i * 6, light->coneAngle);
+				glUniform1f(28 + i * 6, light->coneAngle);
 			}
 			else
 			{
-				glUniform1f(22 + i * 6, 180);
+				glUniform1f(28 + i * 6, 180);
 			}
 		}
 	}

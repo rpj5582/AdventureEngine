@@ -8,20 +8,16 @@ namespace AdventureEngine
 	class Shader
 	{
 	public:
-		Shader(std::string vertexFile, std::string fragmentFile);
-		~Shader();
+		friend class AssetManager;
 
 		GLuint getID() const;
 
-		bool load();
 		void use() const;
 
 	private:
-		GLuint load(std::string filepath, GLenum shaderType);
-		void unload();
+		Shader(GLuint programID);
+		~Shader();
 
-		std::string m_vertexFile;
-		std::string m_fragmentFile;
 		GLuint m_programID;
 	};
 }

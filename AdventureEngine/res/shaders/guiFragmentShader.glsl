@@ -4,7 +4,7 @@
 in vec2 uv;
 
 // Texture uniform
-layout (location = 8) uniform sampler2D theTexture;
+layout (location = 14) uniform sampler2D theTexture;
 
 // Output color
 layout(location = 0) out vec4 finalFragColor;

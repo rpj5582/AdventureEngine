@@ -13,7 +13,6 @@ namespace AdventureEngine
 		~Input();
 
 		static glm::vec2 getMousePosition();
-		static glm::vec2 getMouseDelta();
 
 		static bool getButton(int button);
 		static bool getButtonDown(int button);
@@ -29,7 +28,5 @@ namespace AdventureEngine
 		static std::unordered_map<int, int> m_buttonState;
 		static std::unordered_map<int, bool> m_activeButtons;
 		static glm::vec2 m_mousePos;
-		static glm::vec2 m_prevMousePos;
-		static glm::vec2 m_mouseDelta;
 	};
 }

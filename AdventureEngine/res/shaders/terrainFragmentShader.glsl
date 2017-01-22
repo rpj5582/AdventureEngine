@@ -22,17 +22,24 @@ in vec3 cameraPosition;
 in float visibility;
 
 // Material properties
-layout (location = 5) uniform float reflectivity;
-layout (location = 6) uniform float specularDamping;
+layout (location = 7) uniform float reflectivity;
+layout (location = 8) uniform float specularDamping;
 
 // Fog color
-layout (location = 7) uniform vec3 fogColor;
+layout (location = 9) uniform vec3 fogColor;
 
-// Texture uniform
-layout (location = 8) uniform sampler2D theTexture;
+// Texture uniforms
+layout (location = 14) uniform sampler2D blendMap;
+layout (location = 15) uniform sampler2D texture0;
+layout (location = 16) uniform sampler2D texture1;
+layout (location = 17) uniform sampler2D texture2;
+layout (location = 18) uniform sampler2D texture3;
+
+// UV scaling
+layout (location = 19) uniform vec2 uvScale;
 
 // Lights
-layout (location = 17) uniform Light lights[16];
+layout (location = 23) uniform Light lights[16];
 
 // Output color
 layout(location = 0) out vec4 finalFragColor;
@@ -71,17 +78,29 @@ vec3 calculateLighting(Light light, vec4 color)
 
 void main()
 {
-	// Gets the fragment color
-	vec4 fragColor = texture(theTexture, uv);
+	// Tiles the UV
+	vec2 tiledUV = uv * uvScale;
 
-	if(fragColor.a < 0.5f) discard;
+	// Gets the color from the blend map
+	vec4 blendMapColor = texture(blendMap, uv);
+
+	// Gets the weighted color from each texture
+	vec4 texture0Color = texture(texture0, tiledUV) * (1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b));
+	vec4 texture1Color = texture(texture1, tiledUV) * blendMapColor.r;
+	vec4 texture2Color = texture(texture2, tiledUV) * blendMapColor.g;
+	vec4 texture3Color = texture(texture3, tiledUV) * blendMapColor.b;
+
+	// Calculates the total color for this pixel
+	vec4 totalColor = texture0Color + texture1Color + texture2Color + texture3Color;
+
+	if(totalColor.a < 0.5f) discard;
 
 	vec3 lightColor = vec3(0);
 	for(int i = 0; i < lights.length(); i++)
 	{
-		lightColor += calculateLighting(lights[i], fragColor);
-	}
+		lightColor += calculateLighting(lights[i], totalColor);
+	}	
 
 	// Calcuates the final pixel color with fog
-	finalFragColor = mix(vec4(fogColor, 1), fragColor * vec4(lightColor, 1), visibility);
+	finalFragColor = mix(vec4(fogColor, 1), totalColor * vec4(lightColor, 1), visibility);
 }

@@ -15,8 +15,8 @@ namespace AdventureEngine
 
 	bool GUIRenderer::load()
 	{
-		m_defaultShader = new Shader("guiVertexShader.glsl", "guiFragmentShader.glsl");
-		if (!m_defaultShader->load())
+		m_defaultShader = AssetManager::loadShaderProgram("guiVertexShader.glsl", "guiFragmentShader.glsl");
+		if (!m_defaultShader)
 		{
 			std::cout << "Failed to load default shader for the GUI renderer" << std::endl;
 			return false;
@@ -36,7 +36,7 @@ namespace AdventureEngine
 			Object* guiObject = guiComponent->getObject();
 
 			handleShaders(guiComponent);
-			handleTextures(guiComponent);
+			handleMaterials(guiComponent);
 			handleQuad(guiObject->getModelMatrix());
 		}
 
@@ -55,39 +55,75 @@ namespace AdventureEngine
 		}
 	}
 
-	void GUIRenderer::handleTextures(const GUIComponent* guiComponent) const
+	void GUIRenderer::handleMaterials(const GUIComponent* guiComponent) const
 	{
 		GLuint prevTextureID = 0;
 		GLuint textureID = 0;
-		for (unsigned int i = 0; i < guiComponent->textures.size(); i++)
+		for (unsigned int i = 0; i < guiComponent->materials.size(); i++)
 		{
+			// Gets the current material
+			const Material* material = guiComponent->materials[i];
+
 			// Gets the texture and texture ID
-			const Texture* texture = guiComponent->textures[i];
+			const Texture* texture = material->getTexture();
 			textureID = texture->getID();
 
-			// Gets the texture atlas index
-			unsigned int atlasIndex = texture->getAtlasIndex();
+			// Check which texture type the union has active
+			TextureType textureType = material->getTextureType();
+			if (textureType == TextureType::TEXTURE_ALTAS)
+			{
+				// Gets the texture and texture ID
+				const TextureAtlas* textureAtlas = material->getTextureAtlas();
+				textureID = textureAtlas->getID();
 
-			// Uploads the atlas size, used for atlas uv calculation
-			glm::uvec2 atlasSize = texture->getAtlasSize();
-			glUniform2ui(1, atlasSize.x, atlasSize.y);
+				// Gets the texture atlas index
+				unsigned int atlasIndex = material->getAtlasIndex();
 
-			// Calculates the x-offset
-			float xOffset = atlasIndex % atlasSize.x / (float)atlasSize.x;
+				// Uploads the atlas size, used for atlas uv calculation
+				glm::uvec2 atlasSize = textureAtlas->getAtlasSize();
+				glUniform2ui(5, atlasSize.x, atlasSize.y);
 
-			// Flips the y-offset so that texture index 0 is in the top left, not the bottom left
-			unsigned int column = atlasIndex % atlasSize.x;
-			unsigned int row = atlasSize.y - atlasIndex / atlasSize.x - 1;
-			float yOffset = (column + atlasSize.x * row) / atlasSize.y / (float)atlasSize.y;
+				// Calculates the x-offset
+				float xOffset = atlasIndex % atlasSize.x / (float)atlasSize.x;
 
-			// Uploads the x and y atlas offset, used for altas uv calculation
-			glUniform2f(2, xOffset, yOffset);
+				// Flips the y-offset so that texture index 0 is in the top left, not the bottom left
+				unsigned int column = atlasIndex % atlasSize.x;
+				unsigned int row = atlasSize.y - atlasIndex / atlasSize.x - 1;
+				float yOffset = (column + atlasSize.x * row) / atlasSize.y / (float)atlasSize.y;
+
+				// Uploads the x and y atlas offset, used for altas uv calculation
+				glUniform2f(6, xOffset, yOffset);
+			}
+			else
+			{
+				if (textureType == TextureType::TEXTURE)
+				{
+					// Gets the texture and texture ID
+					const Texture* texture = material->getTexture();
+					textureID = texture->getID();
+				}
+				else if (textureType == TextureType::CUBEMAP)
+				{
+					// Gets the texture and texture ID
+					const Cubemap* cubemap = material->getCubemap();
+					textureID = cubemap->getID();
+				}
+
+				// Upload the default size for non atlas textures
+				glUniform2ui(5, 1, 1);
+
+				// Upload the default offset for non atlas textures
+				glUniform2f(6, 0, 0);
+			}
+
+			// Uploads the texture unit
+			glUniform1i(14 + i, i);
 
 			// If the texture ID is the same as the last one, don't bother binding it
 			if (prevTextureID == textureID) continue;
 
 			// Activates and binds the textures
-			glActiveTexture(GL_TEXTURE0);
+			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, textureID);
 
 			// Updates the previous texture ID

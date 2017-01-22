@@ -17,9 +17,9 @@ out vec3 cameraPosition;
 
 out float visibility;
 
-// Fog constants
-const float density = 0.005f;
-const float gradient = 1.0f;
+// Fog density and gradient
+layout (location = 10) uniform float fogDensity;
+layout (location = 11) uniform float fogGradient;
 
 void main()
 {
@@ -36,5 +36,5 @@ void main()
 
 	// Calculates the visibility factor for fog
 	float distance = length(positionCameraSpace.xyz);
-	visibility = exp(-pow(distance * density, gradient));
+	visibility = exp(-pow(distance * fogDensity, fogGradient));
 }

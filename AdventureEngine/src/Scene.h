@@ -10,7 +10,10 @@
 #include "SkyboxRenderer.h"
 #include "GUIRenderer.h"
 
+#include "AudioListenerComponent.h"
 #include "AudioSourceComponent.h"
+
+#include "AABBColliderComponent.h"
 
 namespace AdventureEngine
 {
@@ -23,10 +26,8 @@ namespace AdventureEngine
 		void addObject(Object* object);
 		void addRenderable(RenderComponent* render);
 		void setWater(WaterComponent* water);
-		void setSkybox(SkyboxComponent* skybox);
 		void addLight(LightComponent* light);
 		void addGUI(GUIComponent* gui);
-		void setMainCamera(CameraComponent* mainCamera);
 
 		virtual bool load();
 		void update(float deltaTime);
@@ -36,10 +37,12 @@ namespace AdventureEngine
 		const Texture* waterReflectionTexture;
 		const Texture* waterRefractionTexture;
 
-		glm::vec3 fogColor;
-
 		const int* windowWidth;
 		const int* windowHeight;
+
+		CameraComponent* mainCamera;
+		SkyboxComponent* m_skybox;
+		FogComponent* m_fog;
 
 	private:
 		void renderWaterFBOs() const;
@@ -53,9 +56,7 @@ namespace AdventureEngine
 
 		std::vector<RenderComponent*> m_renderables;
 		WaterComponent* m_water;
-		SkyboxComponent* m_skybox;
 		std::vector<LightComponent*> m_lights;
 		std::vector<GUIComponent*> m_guiObjects;
-		CameraComponent* m_mainCamera;
 	};
 }

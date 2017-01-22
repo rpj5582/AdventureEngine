@@ -1,19 +1,17 @@
 #pragma once
 #include "Component.h"
 
-#include "Shader.h"
-
 namespace AdventureEngine
 {
 	class SkyboxComponent : public Component
 	{
 	public:
 		SkyboxComponent();
-		SkyboxComponent(Texture* cubeMapTexture);
-		SkyboxComponent(Texture* cubeMapTexture, const Shader* shader);
+		SkyboxComponent(Cubemap* cubeMapTexture);
+		SkyboxComponent(Cubemap* cubeMapTexture, const Shader* shader);
 		~SkyboxComponent();
 
-		const Texture* cubeMapTexture;
+		const Cubemap* cubeMapTexture;
 		const Shader* shader;
 
 	private:

@@ -7,8 +7,8 @@ layout (location = 0) in vec2 position;
 layout (location = 0) uniform mat4 modelMatrix;
 
 // Texture atlas data
-layout (location = 1) uniform uvec2 atlasSize;
-layout (location = 2) uniform vec2 atlasOffset;
+layout (location = 5) uniform uvec2 atlasSize;
+layout (location = 6) uniform vec2 atlasOffset;
 
 out vec2 uv;
 
